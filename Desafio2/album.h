@@ -33,6 +33,8 @@ public:
     Artista* getArtista() const { return artista; }
     float getDuracion() const { return duracion; }
     std::string getPortada() const { return portada; }
+    std::string* getGeneros() const { return generos; }
+    int getTotalGeneros() const { return totalGeneros; }
 
     void setId(int id) { this->id = id; }
     void setNombre(const std::string& nombre) { this->nombre = nombre; }
