@@ -3,51 +3,28 @@
 
 #include <string>
 #include "GestorUsuarios.h"
-
-class Artista;
-class Album;
-class Cancion;
-class MensajePublicitario;
-class Reproductor;
-class ListaFavoritos;
-class GestorCatalogo;
-class GestorPersistencia;
+#include "GestorCatalogo.h"
+#include "GestorAlmacenamiento.h"
+#include "reproductor.h"
 
 class SistemaUdeATunes {
 private:
     GestorUsuarios* gestorUsuarios;
-
-    Artista** artistas;
-    Album** albumes;
-    Cancion** canciones;
-    MensajePublicitario** mensajes;
+    GestorCatalogo* gestorCatalogo;
+    GestorAlmacenamiento* gestorAlmacenamiento;
 
     Usuario* usuarioActual;
     Reproductor* reproductor;
 
-    int totalArtistas;
-    int totalAlbumes;
-    int totalCanciones;
-    int totalMensajes;
-    int capacidad;
-
-    void redimensionarArtistas();
-    void redimensionarAlbumes();
-    void redimensionarCanciones();
-    void redimensionarMensajes();
-
-    void cargarArtistas();
-    void cargarAlbumes();
-    void cargarCanciones();
-    void cargarMensajes();
-    void guardarArtistas();
-    void guardarAlbumes();
-    void guardarCanciones();
-    void guardarMensajes();
+    mutable unsigned long totalIteraciones;
+    mutable unsigned long memoriaConsumida;
 
 public:
     SistemaUdeATunes();
     ~SistemaUdeATunes();
+
+    void cargarDatos();
+    void guardarDatos();
 
     bool login();
     void reproducirAleatorio();
@@ -67,18 +44,12 @@ public:
 
     Usuario* getUsuarioActual() const { return usuarioActual; }
     int getTotalUsuarios() const { return gestorUsuarios->getTotalUsuarios(); }
-    int getTotalCanciones() const { return totalCanciones; }
-    int getTotalArtistas() const { return totalArtistas; }
-    int getTotalAlbumes() const { return totalAlbumes; }
-    int getTotalMensajes() const { return totalMensajes; }
-    Cancion** getCanciones() const { return canciones; }
-    MensajePublicitario** getMensajes() const { return mensajes; }
-
-    void cargarDatos();
-    void guardarDatos();
-
-    void setReproductor(Reproductor* reprod) { reproductor = reprod; }
-    Reproductor* getReproductor() const { return reproductor; }
+    int getTotalCanciones() const { return gestorCatalogo->getTotalCanciones(); }
+    int getTotalArtistas() const { return gestorCatalogo->getTotalArtistas(); }
+    int getTotalAlbumes() const { return gestorCatalogo->getTotalAlbumes(); }
+    int getTotalMensajes() const { return gestorAlmacenamiento->getTotalMensajes(); }
+    Cancion** getCanciones() const { return gestorCatalogo->getCanciones(); }
+    MensajePublicitario** getMensajes() const { return gestorAlmacenamiento->getMensajes(); }
 
     void setUsuarioActual(Usuario* usuario) { usuarioActual = usuario; }
     void mostrarCancionesDisponibles() const;
@@ -91,10 +62,6 @@ public:
 
     void incrementarIteraciones(int cantidad = 1) const;
     void calcularMemoria() const;
-
-private:
-    mutable unsigned long totalIteraciones;
-    mutable unsigned long memoriaConsumida;
 };
 
 #endif

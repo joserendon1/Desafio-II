@@ -8,6 +8,8 @@ SOURCES += \
         artista.cpp \
         cancion.cpp \
         creditos.cpp \
+        gestoralmacenamiento.cpp \
+        gestorcatalogo.cpp \
         gestorusuarios.cpp \
         listafavoritos.cpp \
         main.cpp \
@@ -21,6 +23,8 @@ HEADERS += \
     artista.h \
     cancion.h \
     creditos.h \
+    gestoralmacenamiento.h \
+    gestorcatalogo.h \
     gestorusuarios.h \
     listafavoritos.h \
     mensajepublicitario.h \
