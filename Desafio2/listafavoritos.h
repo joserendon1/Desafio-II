@@ -24,6 +24,7 @@ public:
 
     void reproducir(bool ordenAleatorio) const;
     void seguirLista(ListaFavoritos* otraLista);
+    void mostrarLista() const;  // Declaración del método
 
     int getTotalCanciones() const { return totalCanciones; }
     int getCapacidad() const { return capacidad; }

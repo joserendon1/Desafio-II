@@ -1,43 +1,32 @@
-#include "Usuario.h"
-#include "ListaFavoritos.h"
+#include "Cancion.h"
+#include "Album.h"
 #include <iostream>
 
-Usuario::Usuario()
-    : nickname(""), membresia("estándar"), ciudad(""), pais(""),
-    fechaInscripcion(""), listaFavoritos(nullptr) {
+Cancion::Cancion()
+    : id(0), nombre(""), duracion(0.0f), ruta128(""), ruta320(""),
+    reproducciones(0), album(nullptr), creditos(nullptr) {
 }
 
-Usuario::Usuario(const std::string& nickname, const std::string& membresia)
-    : nickname(nickname), membresia(membresia), ciudad(""), pais(""),
-    fechaInscripcion("") {
-    if (membresia == "premium") {
-        listaFavoritos = new ListaFavoritos(this);
-    } else {
-        listaFavoritos = nullptr;
+Cancion::Cancion(int id, const std::string& nombre, Album* album)
+    : id(id), nombre(nombre), duracion(0.0f), ruta128(""), ruta320(""),
+    reproducciones(0), album(album), creditos(nullptr) {
+}
+
+Cancion::~Cancion() {
+    if (creditos != nullptr) {
+        delete creditos;
     }
 }
 
-Usuario::~Usuario() {
-    if (listaFavoritos != nullptr) {
-        delete listaFavoritos;
-    }
+bool Cancion::operator==(const Cancion& otra) const {
+    return id == otra.id;
 }
 
-bool Usuario::operator==(const Usuario& otro) const {
-    return nickname == otro.nickname;
+void Cancion::reproducir() {
+    reproducciones++;
+    std::cout << "Reproduciendo: " << nombre << std::endl;
 }
 
-bool Usuario::esPremium() const {
-    return membresia == "premium";
-}
-
-void Usuario::cambiarMembresia(const std::string& nuevaMembresia) {
-    membresia = nuevaMembresia;
-
-    if (membresia == "premium" && listaFavoritos == nullptr) {
-        listaFavoritos = new ListaFavoritos(this);
-    } else if (membresia != "premium" && listaFavoritos != nullptr) {
-        delete listaFavoritos;
-        listaFavoritos = nullptr;
-    }
+std::string Cancion::obtenerRuta(bool altaCalidad) const {
+    return altaCalidad ? ruta320 : ruta128;
 }

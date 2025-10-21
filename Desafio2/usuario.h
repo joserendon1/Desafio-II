@@ -28,6 +28,7 @@ public:
     std::string getMembresia() const { return membresia; }
     std::string getCiudad() const { return ciudad; }
     std::string getPais() const { return pais; }
+    std::string getFechaInscripcion() const { return fechaInscripcion; }  // <- AGREGAR
     ListaFavoritos* getListaFavoritos() const { return listaFavoritos; }
 
     void setNickname(const std::string& nickname) { this->nickname = nickname; }

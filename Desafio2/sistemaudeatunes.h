@@ -3,12 +3,14 @@
 
 #include <string>
 
+
 class Usuario;
 class Artista;
 class Album;
 class Cancion;
 class MensajePublicitario;
 class Reproductor;
+class ListaFavoritos;
 
 class SistemaUdeATunes {
 private:
@@ -78,6 +80,11 @@ public:
 
     void setReproductor(Reproductor* reprod) { reproductor = reprod; }
     Reproductor* getReproductor() const { return reproductor; }
+
+    // NUEVOS MÉTODOS
+    void setUsuarioActual(Usuario* usuario) { usuarioActual = usuario; }
+    void mostrarCancionesDisponibles() const;
+    bool agregarCancionAFavoritos(int idCancion);
 };
 
 #endif

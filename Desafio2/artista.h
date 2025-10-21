@@ -20,11 +20,15 @@ public:
 
     int getId() const { return id; }
     std::string getNombre() const { return nombre; }
+    int getEdad() const { return edad; }
+    std::string getPais() const { return pais; }
     int getSeguidores() const { return seguidores; }
     int getPosicion() const { return posicion; }
 
     void setId(int id) { this->id = id; }
     void setNombre(const std::string& nombre) { this->nombre = nombre; }
+    void setEdad(int edad) { this->edad = edad; }                    // <- AGREGAR
+    void setPais(const std::string& pais) { this->pais = pais; }     // <- AGREGAR
     void setSeguidores(int seguidores) { this->seguidores = seguidores; }
     void setPosicion(int posicion) { this->posicion = posicion; }
 };

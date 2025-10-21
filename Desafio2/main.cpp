@@ -1,8 +1,10 @@
 #include <iostream>
 #include "SistemaUdeATunes.h"
+#include "usuario.h"
+#include "listafavoritos.h"
 
 void mostrarMenuPrincipal() {
-    std::cout << "==================================" << std::endl;
+    std::cout << "\n==================================" << std::endl;
     std::cout << "       BIENVENIDO A UdeATunes     " << std::endl;
     std::cout << "==================================" << std::endl;
     std::cout << "1. Ingresar a la plataforma" << std::endl;
@@ -12,8 +14,8 @@ void mostrarMenuPrincipal() {
     std::cout << "Seleccione una opcion: ";
 }
 
-void mostrarMenuUsuario() {
-    std::cout << "==================================" << std::endl;
+void mostrarMenuUsuarioEstandar() {
+    std::cout << "\n==================================" << std::endl;
     std::cout << "          MENÚ PRINCIPAL          " << std::endl;
     std::cout << "==================================" << std::endl;
     std::cout << "1. Reproducción aleatoria" << std::endl;
@@ -23,12 +25,104 @@ void mostrarMenuUsuario() {
     std::cout << "Seleccione una opcion: ";
 }
 
+void mostrarMenuPremium() {
+    std::cout << "\n==================================" << std::endl;
+    std::cout << "          MENÚ PREMIUM           " << std::endl;
+    std::cout << "==================================" << std::endl;
+    std::cout << "1. Reproducción aleatoria" << std::endl;
+    std::cout << "2. Mi lista de favoritos" << std::endl;
+    std::cout << "3. Mostrar métricas" << std::endl;
+    std::cout << "4. Cerrar sesión" << std::endl;
+    std::cout << "==================================" << std::endl;
+    std::cout << "Seleccione una opcion: ";
+}
+
+void mostrarMenuFavoritos() {
+    std::cout << "\n==================================" << std::endl;
+    std::cout << "        MIS FAVORITOS            " << std::endl;
+    std::cout << "==================================" << std::endl;
+    std::cout << "1. Ver mi lista" << std::endl;
+    std::cout << "2. Agregar canción" << std::endl;
+    std::cout << "3. Eliminar canción" << std::endl;
+    std::cout << "4. Reproducir lista" << std::endl;
+    std::cout << "5. Volver al menú principal" << std::endl;
+    std::cout << "==================================" << std::endl;
+    std::cout << "Seleccione una opcion: ";
+}
+
+void manejarMenuFavoritos(SistemaUdeATunes& sistema) {
+    int opcionFav;
+    do {
+        mostrarMenuFavoritos();
+        std::cin >> opcionFav;
+
+        switch (opcionFav) {
+        case 1:
+            if (sistema.getUsuarioActual()->getListaFavoritos() != nullptr) {
+                sistema.getUsuarioActual()->getListaFavoritos()->mostrarLista();
+            } else {
+                std::cout << "No tienes lista de favoritos." << std::endl;
+            }
+            break;
+        case 2:
+        {
+            sistema.mostrarCancionesDisponibles();
+            std::cout << "Ingrese el ID de la canción a agregar: ";
+            int idCancion;
+            std::cin >> idCancion;
+            sistema.agregarCancionAFavoritos(idCancion);
+        }
+        break;
+        case 3:
+        {
+            if (sistema.getUsuarioActual()->getListaFavoritos() != nullptr &&
+                sistema.getUsuarioActual()->getListaFavoritos()->getTotalCanciones() > 0) {
+
+                sistema.getUsuarioActual()->getListaFavoritos()->mostrarLista();
+                std::cout << "Ingrese el ID de la canción a eliminar: ";
+                int idCancion;
+                std::cin >> idCancion;
+
+                if (sistema.getUsuarioActual()->getListaFavoritos()->eliminarCancion(idCancion)) {
+                    std::cout << "✅ Canción eliminada de favoritos." << std::endl;
+                } else {
+                    std::cout << "❌ Canción no encontrada en favoritos." << std::endl;
+                }
+            } else {
+                std::cout << "No hay canciones en tu lista de favoritos." << std::endl;
+            }
+        }
+        break;
+        case 4:
+            if (sistema.getUsuarioActual()->getListaFavoritos() != nullptr &&
+                sistema.getUsuarioActual()->getListaFavoritos()->getTotalCanciones() > 0) {
+
+                std::cout << "¿Reproducir en orden aleatorio? (1=Sí, 0=No): ";
+                bool ordenAleatorio;
+                std::cin >> ordenAleatorio;
+                sistema.getUsuarioActual()->getListaFavoritos()->reproducir(ordenAleatorio);
+            } else {
+                std::cout << "No hay canciones en tu lista de favoritos." << std::endl;
+            }
+            break;
+        case 5:
+            std::cout << "Volviendo al menú principal..." << std::endl;
+            break;
+        default:
+            std::cout << "Opción no válida." << std::endl;
+        }
+    } while (opcionFav != 5);
+}
+
 int main() {
     SistemaUdeATunes sistema;
     int opcion;
 
+    std::cout << "=== SISTEMA UdeATunes INICIADO ===" << std::endl;
+
     do {
         if (sistema.getUsuarioActual() == nullptr) {
+            // Usuario NO logueado - Menú Principal
             mostrarMenuPrincipal();
             std::cin >> opcion;
 
@@ -40,30 +134,60 @@ int main() {
                 sistema.mostrarMetricas();
                 break;
             case 3:
-                std::cout << "¡Gracias por usar UdeATunes!" << std::endl;
+                std::cout << "¡Gracias por usar UdeATunes! Hasta pronto." << std::endl;
                 break;
             default:
-                std::cout << "Opción no válida. Intente de nuevo." << std::endl;
+                std::cout << "❌ Opción no válida. Intente de nuevo." << std::endl;
+                break;
             }
         } else {
-            mostrarMenuUsuario();
-            std::cin >> opcion;
+            // Usuario LOGUEADO - Menús según tipo de usuario
+            if (sistema.getUsuarioActual()->esPremium()) {
+                // Usuario PREMIUM
+                mostrarMenuPremium();
+                std::cin >> opcion;
 
-            switch (opcion) {
-            case 1:
-                sistema.reproducirAleatorio();
-                break;
-            case 2:
-                sistema.mostrarMetricas();
-                break;
-            case 3:
-                std::cout << "Cerrando sesión..." << std::endl;
-                break;
-            default:
-                std::cout << "Opción no válida. Intente de nuevo." << std::endl;
+                switch (opcion) {
+                case 1:
+                    sistema.reproducirAleatorio();
+                    break;
+                case 2:
+                    manejarMenuFavoritos(sistema);
+                    break;
+                case 3:
+                    sistema.mostrarMetricas();
+                    break;
+                case 4:
+                    sistema.setUsuarioActual(nullptr);
+                    std::cout << "Sesión cerrada exitosamente." << std::endl;
+                    break;
+                default:
+                    std::cout << "❌ Opción no válida. Intente de nuevo." << std::endl;
+                    break;
+                }
+            } else {
+                // Usuario ESTÁNDAR
+                mostrarMenuUsuarioEstandar();
+                std::cin >> opcion;
+
+                switch (opcion) {
+                case 1:
+                    sistema.reproducirAleatorio();
+                    break;
+                case 2:
+                    sistema.mostrarMetricas();
+                    break;
+                case 3:
+                    sistema.setUsuarioActual(nullptr);
+                    std::cout << "Sesión cerrada exitosamente." << std::endl;
+                    break;
+                default:
+                    std::cout << "❌ Opción no válida. Intente de nuevo." << std::endl;
+                    break;
+                }
             }
         }
-    } while (opcion != 3);
+    } while (opcion != 3 || sistema.getUsuarioActual() != nullptr);
 
     return 0;
 }
