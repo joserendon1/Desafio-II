@@ -90,6 +90,11 @@ public:
 
     void incrementarIteraciones(int cantidad = 1) const { totalIteraciones += cantidad; }
     void calcularMemoria() const;
+
+    bool seguirListaUsuario(const std::string& nicknameSeguido);
+    void dejarDeSeguirLista();
+    void combinarListaSeguida();
+    void mostrarInfoListaSeguida() const;
 };
 
 #endif

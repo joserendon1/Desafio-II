@@ -3,7 +3,7 @@
 #include <iostream>
 
 Usuario::Usuario()
-    : nickname(""), membresia("estandar"), ciudad(""), pais(""),  // <- SIN TILDE
+    : nickname(""), membresia("estandar"), ciudad(""), pais(""),
     fechaInscripcion(""), listaFavoritos(nullptr) {
 }
 

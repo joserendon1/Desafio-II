@@ -45,7 +45,11 @@ void mostrarMenuFavoritos() {
     std::cout << "2. Agregar cancion" << std::endl;
     std::cout << "3. Eliminar cancion" << std::endl;
     std::cout << "4. Reproducir lista" << std::endl;
-    std::cout << "5. Volver al menu principal" << std::endl;
+    std::cout << "5. Seguir lista de otro usuario" << std::endl;
+    std::cout << "6. Dejar de seguir lista" << std::endl;
+    std::cout << "7. Combinar lista seguida" << std::endl;
+    std::cout << "8. Info lista seguida" << std::endl;
+    std::cout << "9. Volver al menu principal" << std::endl;
     std::cout << "==================================" << std::endl;
     std::cout << "Seleccione una opcion: ";
 }
@@ -97,7 +101,7 @@ void manejarMenuFavoritos(SistemaUdeATunes& sistema) {
             if (sistema.getUsuarioActual()->getListaFavoritos() != nullptr &&
                 sistema.getUsuarioActual()->getListaFavoritos()->getTotalCanciones() > 0) {
 
-                std::cout << "¿Reproducir en orden aleatorio? (1=Si, 0=No): ";
+                std::cout << "Reproducir en orden aleatorio? (1=Si, 0=No): ";
                 bool ordenAleatorio;
                 std::cin >> ordenAleatorio;
                 sistema.getUsuarioActual()->getListaFavoritos()->reproducir(ordenAleatorio);
@@ -105,13 +109,31 @@ void manejarMenuFavoritos(SistemaUdeATunes& sistema) {
                 std::cout << "No hay canciones en tu lista de favoritos." << std::endl;
             }
             break;
+        // AGREGAR los nuevos casos:
         case 5:
+        {
+            std::cout << "Ingrese el nickname del usuario a seguir: ";
+            std::string nicknameSeguido;
+            std::cin >> nicknameSeguido;
+            sistema.seguirListaUsuario(nicknameSeguido);
+        }
+        break;
+        case 6:
+            sistema.dejarDeSeguirLista();
+            break;
+        case 7:
+            sistema.combinarListaSeguida();
+            break;
+        case 8:
+            sistema.mostrarInfoListaSeguida();
+            break;
+        case 9:
             std::cout << "Volviendo al menu principal..." << std::endl;
             break;
         default:
-            std::cout << "Opción no valida." << std::endl;
+            std::cout << "Opcion no valida." << std::endl;
         }
-    } while (opcionFav != 5);
+    } while (opcionFav != 9);
 }
 
 int main() {

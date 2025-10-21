@@ -103,32 +103,79 @@ void ListaFavoritos::reproducir(bool ordenAleatorio) const {
         canciones[i]->incrementarReproducciones();
     }
 
-    std::cout << "\n🎉 Lista de favoritos reproducida completamente." << std::endl;
+    std::cout << "\nLista de favoritos reproducida completamente." << std::endl;
 }
 
 void ListaFavoritos::seguirLista(ListaFavoritos* otraLista) {
+    if (otraLista == nullptr) {
+        std::cout << "La lista a seguir no existe." << std::endl;
+        return;
+    }
+
+    if (listaSeguida != nullptr) {
+        std::cout << "Ya estas siguiendo la lista de: " << listaSeguida->getUsuario()->getNickname() << std::endl;
+        std::cout << "Debes dejar de seguir la lista actual primero." << std::endl;
+        return;
+    }
+
+    if (otraLista->getUsuario() == usuario) {
+        std::cout << "No puedes seguir tu propia lista." << std::endl;
+        return;
+    }
+
     listaSeguida = otraLista;
+    std::cout << "Ahora sigues la lista de favoritos de: " << otraLista->getUsuario()->getNickname() << std::endl;
+    std::cout << "Canciones en su lista: " << otraLista->getTotalCanciones() << std::endl;
+}
+
+void ListaFavoritos::dejarDeSeguirLista() {
+    if (listaSeguida == nullptr) {
+        std::cout << "No estas siguiendo ninguna lista." << std::endl;
+        return;
+    }
+
+    std::cout << "Has dejado de seguir la lista de: " << listaSeguida->getUsuario()->getNickname() << std::endl;
+    listaSeguida = nullptr;
+}
+
+void ListaFavoritos::combinarConListaSeguida() {
+    if (listaSeguida == nullptr) {
+        std::cout << "No estas siguiendo ninguna lista." << std::endl;
+        return;
+    }
+
+    Cancion** cancionesSeguida = listaSeguida->getCanciones();
+    int totalSeguida = listaSeguida->getTotalCanciones();
+    int cancionesAgregadas = 0;
+
+    for (int i = 0; i < totalSeguida; i++) {
+        if (agregarCancion(cancionesSeguida[i])) {
+            cancionesAgregadas++;
+        }
+    }
+
+    std::cout << "Se agregaron " << cancionesAgregadas << " canciones de la lista de "
+              << listaSeguida->getUsuario()->getNickname() << " a tu lista." << std::endl;
 }
 
 void ListaFavoritos::mostrarLista() const {
     if (totalCanciones == 0) {
-        std::cout << "Tu lista de favoritos está vacía." << std::endl;
+        std::cout << "Tu lista de favoritos esta vacia." << std::endl;
         return;
     }
 
-    std::cout << "\n📋 Tu lista de favoritos (" << totalCanciones << " canciones):" << std::endl;
+    std::cout << "\nTu lista de favoritos (" << totalCanciones << " canciones):" << std::endl;
     for (int i = 0; i < totalCanciones; i++) {
-        // Verificar que los punteros no sean nulos antes de acceder
         if (canciones[i] != nullptr &&
             canciones[i]->getAlbum() != nullptr &&
             canciones[i]->getAlbum()->getArtista() != nullptr) {
 
-            std::cout << "🎵 " << canciones[i]->getNombre()
+            std::cout << " " << canciones[i]->getNombre()
                       << " | Artista: " << canciones[i]->getAlbum()->getArtista()->getNombre()
-                      << " | Álbum: " << canciones[i]->getAlbum()->getNombre()
+                      << " | Album: " << canciones[i]->getAlbum()->getNombre()
                       << " | ID: " << canciones[i]->getId() << std::endl;
         } else {
-            std::cout << "🎵 Canción con datos incompletos" << std::endl;
+            std::cout << "🎵 Cancion con datos incompletos" << std::endl;
         }
     }
 }

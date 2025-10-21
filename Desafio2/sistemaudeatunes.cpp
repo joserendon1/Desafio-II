@@ -642,3 +642,85 @@ void SistemaUdeATunes::mostrarMetricasEficiencia() const {
     std::cout << "aprox: " << memoriaConsumida / 1024 << " KB" << std::endl;
     std::cout << "===============================" << std::endl;
 }
+
+bool SistemaUdeATunes::seguirListaUsuario(const std::string& nicknameSeguido) {
+    if (usuarioActual == nullptr || !usuarioActual->esPremium()) {
+        std::cout << "Solo usuarios premium pueden seguir listas." << std::endl;
+        return false;
+    }
+
+    if (nicknameSeguido == usuarioActual->getNickname()) {
+        std::cout << "No puedes seguir tu propia lista." << std::endl;
+        return false;
+    }
+
+    Usuario* usuarioSeguido = buscarUsuario(nicknameSeguido);
+    if (usuarioSeguido == nullptr) {
+        std::cout << "Usuario '" << nicknameSeguido << "' no encontrado." << std::endl;
+        return false;
+    }
+
+    if (!usuarioSeguido->esPremium()) {
+        std::cout << "El usuario '" << nicknameSeguido << "' no es premium y no tiene lista de favoritos." << std::endl;
+        return false;
+    }
+
+    if (usuarioSeguido->getListaFavoritos() == nullptr) {
+        std::cout << "El usuario '" << nicknameSeguido << "' no tiene lista de favoritos." << std::endl;
+        return false;
+    }
+
+    usuarioActual->getListaFavoritos()->seguirLista(usuarioSeguido->getListaFavoritos());
+    return true;
+}
+
+void SistemaUdeATunes::dejarDeSeguirLista() {
+    if (usuarioActual == nullptr || !usuarioActual->esPremium()) {
+        std::cout << "Solo usuarios premium pueden seguir listas." << std::endl;
+        return;
+    }
+
+    if (usuarioActual->getListaFavoritos() == nullptr) {
+        std::cout << "No tienes lista de favoritos." << std::endl;
+        return;
+    }
+
+    usuarioActual->getListaFavoritos()->dejarDeSeguirLista();
+}
+
+void SistemaUdeATunes::combinarListaSeguida() {
+    if (usuarioActual == nullptr || !usuarioActual->esPremium()) {
+        std::cout << "Solo usuarios premium pueden seguir listas." << std::endl;
+        return;
+    }
+
+    if (usuarioActual->getListaFavoritos() == nullptr) {
+        std::cout << "No tienes lista de favoritos." << std::endl;
+        return;
+    }
+
+    usuarioActual->getListaFavoritos()->combinarConListaSeguida();
+}
+
+void SistemaUdeATunes::mostrarInfoListaSeguida() const {
+    if (usuarioActual == nullptr || !usuarioActual->esPremium()) {
+        std::cout << "Solo usuarios premium pueden seguir listas." << std::endl;
+        return;
+    }
+
+    if (usuarioActual->getListaFavoritos() == nullptr) {
+        std::cout << "No tienes lista de favoritos." << std::endl;
+        return;
+    }
+
+    ListaFavoritos* listaSeguida = usuarioActual->getListaFavoritos()->getListaSeguida();
+    if (listaSeguida == nullptr) {
+        std::cout << "No estas siguiendo ninguna lista." << std::endl;
+        return;
+    }
+
+    std::cout << "\nLista que estas siguiendo:" << std::endl;
+    std::cout << "Usuario: " << listaSeguida->getUsuario()->getNickname() << std::endl;
+    std::cout << "Canciones en su lista: " << listaSeguida->getTotalCanciones() << std::endl;
+    std::cout << "Membresia: " << listaSeguida->getUsuario()->getMembresia() << std::endl;
+}
