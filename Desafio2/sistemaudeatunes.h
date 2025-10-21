@@ -3,7 +3,6 @@
 
 #include <string>
 
-
 class Usuario;
 class Artista;
 class Album;
@@ -28,6 +27,9 @@ private:
     int totalCanciones;
     int totalMensajes;
     int capacidad;
+
+    mutable unsigned long totalIteraciones;
+    mutable unsigned long memoriaConsumida;
 
     void redimensionarUsuarios();
     void redimensionarArtistas();
@@ -54,6 +56,7 @@ public:
     bool login();
     void reproducirAleatorio();
     void mostrarMetricas() const;
+    void mostrarMetricasEficiencia() const;
 
     Usuario* buscarUsuario(const std::string& nickname) const;
     Cancion* buscarCancion(int id) const;
@@ -81,10 +84,12 @@ public:
     void setReproductor(Reproductor* reprod) { reproductor = reprod; }
     Reproductor* getReproductor() const { return reproductor; }
 
-    // NUEVOS MÉTODOS
     void setUsuarioActual(Usuario* usuario) { usuarioActual = usuario; }
     void mostrarCancionesDisponibles() const;
     bool agregarCancionAFavoritos(int idCancion);
+
+    void incrementarIteraciones(int cantidad = 1) const { totalIteraciones += cantidad; }
+    void calcularMemoria() const;
 };
 
 #endif

@@ -69,11 +69,11 @@ bool ListaFavoritos::contieneCancion(int idCancion) const {
 
 void ListaFavoritos::reproducir(bool ordenAleatorio) const {
     if (totalCanciones == 0) {
-        std::cout << "La lista de favoritos está vacía." << std::endl;
+        std::cout << "La lista de favoritos esta vacia." << std::endl;
         return;
     }
 
-    std::cout << "\n🎵 Reproduciendo lista de favoritos ("
+    std::cout << "\n Reproduciendo lista de favoritos ("
               << totalCanciones << " canciones)" << std::endl;
 
     if (ordenAleatorio) {
@@ -87,9 +87,9 @@ void ListaFavoritos::reproducir(bool ordenAleatorio) const {
     for (int i = 0; i < totalCanciones; i++) {
         std::cout << "\n=== REPRODUCIENDO ===" << std::endl;
         std::cout << "Artista: " << canciones[i]->getAlbum()->getArtista()->getNombre() << std::endl;
-        std::cout << "Álbum: " << canciones[i]->getAlbum()->getNombre() << std::endl;
-        std::cout << "Canción: " << canciones[i]->getNombre() << std::endl;
-        std::cout << "Duración: " << canciones[i]->getDuracion() << " minutos" << std::endl;
+        std::cout << "Album: " << canciones[i]->getAlbum()->getNombre() << std::endl;
+        std::cout << "Cancion: " << canciones[i]->getNombre() << std::endl;
+        std::cout << "Duracion: " << canciones[i]->getDuracion() << " minutos" << std::endl;
         std::cout << "=====================" << std::endl;
 
         // Simular reproducción
@@ -98,7 +98,7 @@ void ListaFavoritos::reproducir(bool ordenAleatorio) const {
         while (std::chrono::steady_clock::now() - start < std::chrono::seconds(2)) {
             // Esperar 2 segundos
         }
-        std::cout << "Canción finalizada." << std::endl;
+        std::cout << "Cancion finalizada." << std::endl;
 
         canciones[i]->incrementarReproducciones();
     }

@@ -33,22 +33,22 @@ void Reproductor::mostrarInterfazReproduccion() {
 
     std::cout << "\n=== REPRODUCIENDO ===" << std::endl;
     std::cout << "Artista: " << cancionActual->getAlbum()->getArtista()->getNombre() << std::endl;
-    std::cout << "Álbum: " << cancionActual->getAlbum()->getNombre() << std::endl;
+    std::cout << "Album: " << cancionActual->getAlbum()->getNombre() << std::endl;
     std::cout << "Portada: " << cancionActual->getAlbum()->getPortada() << std::endl;
-    std::cout << "Canción: " << cancionActual->getNombre() << std::endl;
+    std::cout << "Cancion: " << cancionActual->getNombre() << std::endl;
     std::string rutaAudio = cancionActual->obtenerRuta(usuarioActual->esPremium());
     std::cout << "Audio: " << rutaAudio << std::endl;
-    std::cout << "Duración: " << cancionActual->getDuracion() << " minutos" << std::endl;
+    std::cout << "Duracion: " << cancionActual->getDuracion() << " minutos" << std::endl;
     std::cout << "\n--- OPCIONES ---" << std::endl;
-    std::cout << "1. Detener reproducción" << std::endl;
-    std::cout << "2. Siguiente canción" << std::endl;
+    std::cout << "1. Detener reproduccion" << std::endl;
+    std::cout << "2. Siguiente cancion" << std::endl;
 
     if (usuarioActual->esPremium()) {
-        std::cout << "3. Canción anterior" << std::endl;
+        std::cout << "3. Cancion anterior" << std::endl;
         std::cout << "4. " << (modoRepetir ? "Desactivar" : "Activar") << " repetir" << std::endl;
     }
 
-    std::cout << "0. Volver al menú principal" << std::endl;
+    std::cout << "0. Volver al menu principal" << std::endl;
     std::cout << "=====================" << std::endl;
 }
 
@@ -60,7 +60,7 @@ void Reproductor::mostrarPublicidad() {
         if (mensaje != nullptr) {
             std::cout << "\n--- PUBLICIDAD ---" << std::endl;
             std::cout << mensaje->getTexto() << std::endl;
-            std::cout << "Categoría: " << mensaje->getCategoria() << std::endl;
+            std::cout << "Categoria: " << mensaje->getCategoria() << std::endl;
             std::cout << "------------------" << std::endl;
 
             std::cout << "Publicidad en progreso..." << std::endl;
@@ -101,8 +101,8 @@ void Reproductor::reproducirAleatorio() {
     reproduciendo = true;
     contadorCancionesReproducidas = 0;
 
-    std::cout << "Iniciando reproducción aleatoria..." << std::endl;
-    std::cout << "Se reproducirán 5 canciones (modo prueba)" << std::endl;
+    std::cout << "Iniciando reproduccion aleatoria..." << std::endl;
+    std::cout << "Se reproduciran 5 canciones (modo prueba)" << std::endl;
 
     for (int i = 0; i < 5 && reproduciendo; i++) {
         indiceActual = generarNumeroAleatorio(totalCanciones);
@@ -124,16 +124,16 @@ void Reproductor::reproducirAleatorio() {
         while (std::chrono::steady_clock::now() - start < std::chrono::seconds(3)) {
         }
 
-        std::cout << "Canción finalizada." << std::endl;
+        std::cout << "Cancion finalizada." << std::endl;
 
         if (modoRepetir) {
             i--;
-            std::cout << "Modo repetir activado - repitiendo canción..." << std::endl;
+            std::cout << "Modo repetir activado - repitiendo cancion..." << std::endl;
         }
     }
 
     if (reproduciendo) {
-        std::cout << "Reproducción finalizada (límite de 5 canciones alcanzado)." << std::endl;
+        std::cout << "Reproduccion finalizada (limite de 5 canciones alcanzado)." << std::endl;
     }
 
     reproduciendo = false;
@@ -190,12 +190,12 @@ void Reproductor::retrocederCancion() {
 
 void Reproductor::detenerReproduccion() {
     reproduciendo = false;
-    std::cout << "Reproducción detenida." << std::endl;
+    std::cout << "Reproduccion detenida." << std::endl;
 }
 
 void Reproductor::toggleRepetir() {
     if (!usuarioActual->esPremium()) {
-        std::cout << "Esta función solo está disponible para usuarios premium." << std::endl;
+        std::cout << "Esta funcion solo esta disponible para usuarios premium." << std::endl;
         return;
     }
 

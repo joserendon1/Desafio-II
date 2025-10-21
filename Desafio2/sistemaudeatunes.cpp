@@ -15,7 +15,8 @@ SistemaUdeATunes::SistemaUdeATunes()
     : usuarios(nullptr), artistas(nullptr), albumes(nullptr),
     canciones(nullptr), mensajes(nullptr), usuarioActual(nullptr),
     reproductor(nullptr), totalUsuarios(0), totalArtistas(0), totalAlbumes(0),
-    totalCanciones(0), totalMensajes(0), capacidad(10) {
+    totalCanciones(0), totalMensajes(0), capacidad(10),
+    totalIteraciones(0), memoriaConsumida(0) {
 
     usuarios = new Usuario*[capacidad];
     artistas = new Artista*[capacidad];
@@ -187,7 +188,7 @@ void SistemaUdeATunes::cargarArtistas() {
 void SistemaUdeATunes::cargarAlbumes() {
     std::ifstream archivo("datos/albumes.txt");
     if (!archivo.is_open()) {
-        std::cout << "No se pudo abrir el archivo de álbumes." << std::endl;
+        std::cout << "No se pudo abrir el archivo de albumes." << std::endl;
         return;
     }
 
@@ -233,7 +234,7 @@ void SistemaUdeATunes::cargarAlbumes() {
     }
 
     archivo.close();
-    std::cout << "Álbumes cargados: " << totalAlbumes << std::endl;
+    std::cout << "Albumes cargados: " << totalAlbumes << std::endl;
 }
 
 void SistemaUdeATunes::cargarCanciones() {
@@ -349,7 +350,7 @@ void SistemaUdeATunes::guardarArtistas() {
 void SistemaUdeATunes::guardarAlbumes() {
     std::ofstream archivo("datos/albumes.txt");
     if (!archivo.is_open()) {
-        std::cout << "No se pudo abrir el archivo de álbumes para guardar." << std::endl;
+        std::cout << "No se pudo abrir el archivo de albumes para guardar." << std::endl;
         return;
     }
 
@@ -371,7 +372,7 @@ void SistemaUdeATunes::guardarAlbumes() {
     }
 
     archivo.close();
-    std::cout << "Álbumes guardados: " << totalAlbumes << std::endl;
+    std::cout << "Albumes guardados: " << totalAlbumes << std::endl;
 }
 
 void SistemaUdeATunes::guardarCanciones() {
@@ -439,8 +440,8 @@ bool SistemaUdeATunes::login() {
     Usuario* usuario = buscarUsuario(nickname);
     if (usuario != nullptr) {
         usuarioActual = usuario;
-        std::cout << "¡Bienvenido " << nickname << "!" << std::endl;
-        std::cout << "Membresía: " << usuario->getMembresia() << std::endl;
+        std::cout << "Bienvenido " << nickname << "!" << std::endl;
+        std::cout << "Membresia: " << usuario->getMembresia() << std::endl;
         return true;
     } else {
         std::cout << "Usuario no encontrado." << std::endl;
@@ -455,7 +456,7 @@ void SistemaUdeATunes::reproducirAleatorio() {
     }
 
     if (usuarioActual == nullptr) {
-        std::cout << "Debe iniciar sesión para reproducir música." << std::endl;
+        std::cout << "Debe iniciar sesion para reproducir musica." << std::endl;
         return;
     }
 
@@ -470,16 +471,18 @@ void SistemaUdeATunes::reproducirAleatorio() {
 }
 
 void SistemaUdeATunes::mostrarMetricas() const {
-    std::cout << "=== MÉTRICAS DEL SISTEMA ===" << std::endl;
+    std::cout << "=== METRICAS DEL SISTEMA ===" << std::endl;
     std::cout << "Usuarios registrados: " << totalUsuarios << std::endl;
     std::cout << "Artistas en plataforma: " << totalArtistas << std::endl;
-    std::cout << "Álbumes disponibles: " << totalAlbumes << std::endl;
-    std::cout << "Canciones en catálogo: " << totalCanciones << std::endl;
+    std::cout << "Albumes disponibles: " << totalAlbumes << std::endl;
+    std::cout << "Canciones en catalogo: " << totalCanciones << std::endl;
     std::cout << "Mensajes publicitarios: " << totalMensajes << std::endl;
 }
 
 Usuario* SistemaUdeATunes::buscarUsuario(const std::string& nickname) const {
+    incrementarIteraciones();
     for (int i = 0; i < totalUsuarios; i++) {
+        incrementarIteraciones();
         if (usuarios[i]->getNickname() == nickname) {
             return usuarios[i];
         }
@@ -488,7 +491,9 @@ Usuario* SistemaUdeATunes::buscarUsuario(const std::string& nickname) const {
 }
 
 Cancion* SistemaUdeATunes::buscarCancion(int id) const {
+    incrementarIteraciones();
     for (int i = 0; i < totalCanciones; i++) {
+        incrementarIteraciones();
         if (canciones[i]->getId() == id) {
             return canciones[i];
         }
@@ -497,7 +502,9 @@ Cancion* SistemaUdeATunes::buscarCancion(int id) const {
 }
 
 Artista* SistemaUdeATunes::buscarArtista(int id) const {
+    incrementarIteraciones();
     for (int i = 0; i < totalArtistas; i++) {
+        incrementarIteraciones();
         if (artistas[i]->getId() == id) {
             return artistas[i];
         }
@@ -506,7 +513,9 @@ Artista* SistemaUdeATunes::buscarArtista(int id) const {
 }
 
 Album* SistemaUdeATunes::buscarAlbum(int id) const {
+    incrementarIteraciones();
     for (int i = 0; i < totalAlbumes; i++) {
+        incrementarIteraciones();
         if (albumes[i]->getId() == id) {
             return albumes[i];
         }
@@ -515,7 +524,7 @@ Album* SistemaUdeATunes::buscarAlbum(int id) const {
 }
 
 void SistemaUdeATunes::mostrarCancionesDisponibles() const {
-    std::cout << "\n🎶 Canciones disponibles (" << totalCanciones << "):" << std::endl;
+    std::cout << "\n Canciones disponibles (" << totalCanciones << "):" << std::endl;
     for (int i = 0; i < totalCanciones; i++) {
         std::cout << "ID: " << canciones[i]->getId()
         << " | " << canciones[i]->getNombre()
@@ -531,15 +540,15 @@ bool SistemaUdeATunes::agregarCancionAFavoritos(int idCancion) {
 
     Cancion* cancion = buscarCancion(idCancion);
     if (cancion == nullptr) {
-        std::cout << "Canción no encontrada." << std::endl;
+        std::cout << "Cancion no encontrada." << std::endl;
         return false;
     }
 
     if (usuarioActual->getListaFavoritos()->agregarCancion(cancion)) {
-        std::cout << "✅ Canción agregada a favoritos: " << cancion->getNombre() << std::endl;
+        std::cout << "Cancion agregada a favoritos: " << cancion->getNombre() << std::endl;
         return true;
     } else {
-        std::cout << "❌ La canción ya está en favoritos o la lista está llena." << std::endl;
+        std::cout << "La cancion ya está en favoritos o la lista está llena." << std::endl;
         return false;
     }
 }
@@ -599,4 +608,37 @@ bool SistemaUdeATunes::agregarMensaje(MensajePublicitario* mensaje) {
 
     mensajes[totalMensajes++] = mensaje;
     return true;
+}
+
+void SistemaUdeATunes::calcularMemoria() const {
+    memoriaConsumida = 0;
+
+    memoriaConsumida += totalUsuarios * sizeof(Usuario);
+    memoriaConsumida += totalArtistas * sizeof(Artista);
+    memoriaConsumida += totalAlbumes * sizeof(Album);
+    memoriaConsumida += totalCanciones * sizeof(Cancion);
+    memoriaConsumida += totalMensajes * sizeof(MensajePublicitario);
+
+    memoriaConsumida += capacidad * sizeof(Usuario*);
+    memoriaConsumida += capacidad * sizeof(Artista*);
+    memoriaConsumida += capacidad * sizeof(Album*);
+    memoriaConsumida += capacidad * sizeof(Cancion*);
+    memoriaConsumida += capacidad * sizeof(MensajePublicitario*);
+
+    for (int i = 0; i < totalUsuarios; i++) {
+        if (usuarios[i]->getListaFavoritos() != nullptr) {
+            memoriaConsumida += sizeof(ListaFavoritos);
+            memoriaConsumida += usuarios[i]->getListaFavoritos()->getCapacidad() * sizeof(Cancion*);
+        }
+    }
+}
+
+void SistemaUdeATunes::mostrarMetricasEficiencia() const {
+    calcularMemoria();
+
+    std::cout << "\n=== METRICAS DE EFICIENCIA ===" << std::endl;
+    std::cout << "Total de iteraciones: " << totalIteraciones << std::endl;
+    std::cout << "Memoria consumida: " << memoriaConsumida << " bytes" << std::endl;
+    std::cout << "aprox: " << memoriaConsumida / 1024 << " KB" << std::endl;
+    std::cout << "===============================" << std::endl;
 }

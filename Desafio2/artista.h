@@ -27,8 +27,8 @@ public:
 
     void setId(int id) { this->id = id; }
     void setNombre(const std::string& nombre) { this->nombre = nombre; }
-    void setEdad(int edad) { this->edad = edad; }                    // <- AGREGAR
-    void setPais(const std::string& pais) { this->pais = pais; }     // <- AGREGAR
+    void setEdad(int edad) { this->edad = edad; }
+    void setPais(const std::string& pais) { this->pais = pais; }
     void setSeguidores(int seguidores) { this->seguidores = seguidores; }
     void setPosicion(int posicion) { this->posicion = posicion; }
 };
