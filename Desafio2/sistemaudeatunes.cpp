@@ -4,6 +4,7 @@
 #include "Album.h"
 #include "Cancion.h"
 #include "MensajePublicitario.h"
+#include "Reproductor.h"
 #include <iostream>
 #include <string>
 #include <fstream>
@@ -12,7 +13,7 @@
 SistemaUdeATunes::SistemaUdeATunes()
     : usuarios(nullptr), artistas(nullptr), albumes(nullptr),
     canciones(nullptr), mensajes(nullptr), usuarioActual(nullptr),
-    totalUsuarios(0), totalArtistas(0), totalAlbumes(0),
+    reproductor(nullptr), totalUsuarios(0), totalArtistas(0), totalAlbumes(0),
     totalCanciones(0), totalMensajes(0), capacidad(10) {
 
     usuarios = new Usuario*[capacidad];
@@ -27,6 +28,10 @@ SistemaUdeATunes::SistemaUdeATunes()
 SistemaUdeATunes::~SistemaUdeATunes() {
     guardarDatos();
 
+    if (reproductor != nullptr) {
+        delete reproductor;
+    }
+
     for (int i = 0; i < totalUsuarios; i++) delete usuarios[i];
     for (int i = 0; i < totalArtistas; i++) delete artistas[i];
     for (int i = 0; i < totalAlbumes; i++) delete albumes[i];
@@ -39,6 +44,7 @@ SistemaUdeATunes::~SistemaUdeATunes() {
     delete[] canciones;
     delete[] mensajes;
 }
+
 
 void SistemaUdeATunes::redimensionarUsuarios() {
     int nuevaCapacidad = capacidad * 2;
@@ -104,6 +110,7 @@ void SistemaUdeATunes::redimensionarMensajes() {
     mensajes = nuevoArray;
     capacidad = nuevaCapacidad;
 }
+
 
 void SistemaUdeATunes::cargarUsuarios() {
     std::ifstream archivo("datos/usuarios.txt");
@@ -199,6 +206,7 @@ void SistemaUdeATunes::cargarAlbumes() {
         int id = std::stoi(idStr);
         float duracion = std::stof(duracionStr);
         float puntuacion = std::stof(puntuacionStr);
+
         int artistaId = id / 100;
         Artista* artista = buscarArtista(artistaId);
 
@@ -206,6 +214,7 @@ void SistemaUdeATunes::cargarAlbumes() {
             Album* nuevoAlbum = new Album(id, nombre, artista);
             nuevoAlbum->setDuracion(duracion);
             nuevoAlbum->setPortada(portada);
+
             std::string genero;
             while (std::getline(ss, genero, '|')) {
                 if (!genero.empty()) {
@@ -245,6 +254,7 @@ void SistemaUdeATunes::cargarCanciones() {
         int id = std::stoi(idStr);
         float duracion = std::stof(duracionStr);
         int reproducciones = std::stoi(reproduccionesStr);
+
         int albumId = id / 100;
         Album* album = buscarAlbum(albumId);
 
@@ -299,7 +309,7 @@ void SistemaUdeATunes::guardarUsuarios() {
                 << usuarios[i]->getMembresia() << "|"
                 << usuarios[i]->getCiudad() << "|"
                 << usuarios[i]->getPais() << "|"
-                << "2025-10-15" << std::endl; // Fecha hardcodeada por simplicidad
+                << "2025-10-15" << std::endl;
     }
 
     archivo.close();
@@ -315,8 +325,8 @@ void SistemaUdeATunes::guardarArtistas() {
     for (int i = 0; i < totalArtistas; i++) {
         archivo << artistas[i]->getId() << "|"
                 << artistas[i]->getNombre() << "|"
-                << "47" << "|" // Edad hardcodeada
-                << "Colombia" << "|" // País hardcodeado
+                << "47" << "|"
+                << "Colombia" << "|"
                 << artistas[i]->getSeguidores() << "|"
                 << artistas[i]->getPosicion() << std::endl;
     }
@@ -325,19 +335,17 @@ void SistemaUdeATunes::guardarArtistas() {
 }
 
 void SistemaUdeATunes::guardarAlbumes() {
-    // Implementación similar para álbumes
     std::cout << "Guardado de álbumes - Funcionalidad en desarrollo" << std::endl;
 }
 
 void SistemaUdeATunes::guardarCanciones() {
-    // Implementación similar para canciones
     std::cout << "Guardado de canciones - Funcionalidad en desarrollo" << std::endl;
 }
 
 void SistemaUdeATunes::guardarMensajes() {
-    // Implementación similar para mensajes
     std::cout << "Guardado de mensajes - Funcionalidad en desarrollo" << std::endl;
 }
+
 
 void SistemaUdeATunes::cargarDatos() {
     std::cout << "=== CARGANDO DATOS DEL SISTEMA ===" << std::endl;
@@ -382,8 +390,19 @@ void SistemaUdeATunes::reproducirAleatorio() {
         return;
     }
 
-    std::cout << "Reproducción aleatoria - Funcionalidad en desarrollo" << std::endl;
-    std::cout << "Canciones disponibles: " << totalCanciones << std::endl;
+    if (usuarioActual == nullptr) {
+        std::cout << "Debe iniciar sesión para reproducir música." << std::endl;
+        return;
+    }
+
+    Reproductor* nuevoReproductor = new Reproductor(canciones, totalCanciones, mensajes, totalMensajes, usuarioActual);
+
+    if (reproductor != nullptr) {
+        delete reproductor;
+    }
+
+    reproductor = nuevoReproductor;
+    reproductor->reproducirAleatorio();
 }
 
 void SistemaUdeATunes::mostrarMetricas() const {

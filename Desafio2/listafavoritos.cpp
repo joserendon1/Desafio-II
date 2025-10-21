@@ -1,6 +1,7 @@
 #include "ListaFavoritos.h"
 #include "Usuario.h"
 #include "Cancion.h"
+#include "Album.h"        // <- AÑADIR ESTO
 #include <iostream>
 
 ListaFavoritos::ListaFavoritos(Usuario* usuario)

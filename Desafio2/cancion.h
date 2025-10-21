@@ -26,6 +26,7 @@ public:
 
     void reproducir();
     std::string obtenerRuta(bool altaCalidad) const;
+    void incrementarReproducciones() { reproducciones++; }
 
     int getId() const { return id; }
     std::string getNombre() const { return nombre; }
@@ -40,7 +41,6 @@ public:
     void setRuta128(const std::string& ruta) { ruta128 = ruta; }
     void setRuta320(const std::string& ruta) { ruta320 = ruta; }
     void setAlbum(Album* album) { this->album = album; }
-    void incrementarReproducciones() { reproducciones++; }
 };
 
 #endif

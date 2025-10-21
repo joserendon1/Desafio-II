@@ -8,6 +8,7 @@ class Artista;
 class Album;
 class Cancion;
 class MensajePublicitario;
+class Reproductor;
 
 class SistemaUdeATunes {
 private:
@@ -17,6 +18,7 @@ private:
     Cancion** canciones;
     MensajePublicitario** mensajes;
     Usuario* usuarioActual;
+    Reproductor* reproductor;
 
     int totalUsuarios;
     int totalArtistas;
@@ -73,6 +75,9 @@ public:
 
     void cargarDatos();
     void guardarDatos();
+
+    void setReproductor(Reproductor* reprod) { reproductor = reprod; }
+    Reproductor* getReproductor() const { return reproductor; }
 };
 
 #endif
