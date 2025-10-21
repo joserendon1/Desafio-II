@@ -2,48 +2,44 @@
 #define SISTEMAUDEATUNES_H
 
 #include <string>
+#include "GestorUsuarios.h"
 
-class Usuario;
 class Artista;
 class Album;
 class Cancion;
 class MensajePublicitario;
 class Reproductor;
 class ListaFavoritos;
+class GestorCatalogo;
+class GestorPersistencia;
 
 class SistemaUdeATunes {
 private:
-    Usuario** usuarios;
+    GestorUsuarios* gestorUsuarios;
+
     Artista** artistas;
     Album** albumes;
     Cancion** canciones;
     MensajePublicitario** mensajes;
+
     Usuario* usuarioActual;
     Reproductor* reproductor;
 
-    int totalUsuarios;
     int totalArtistas;
     int totalAlbumes;
     int totalCanciones;
     int totalMensajes;
     int capacidad;
 
-    mutable unsigned long totalIteraciones;
-    mutable unsigned long memoriaConsumida;
-
-    void redimensionarUsuarios();
     void redimensionarArtistas();
     void redimensionarAlbumes();
     void redimensionarCanciones();
     void redimensionarMensajes();
 
-    void cargarUsuarios();
     void cargarArtistas();
     void cargarAlbumes();
     void cargarCanciones();
     void cargarMensajes();
-
-    void guardarUsuarios();
     void guardarArtistas();
     void guardarAlbumes();
     void guardarCanciones();
@@ -70,7 +66,7 @@ public:
     bool agregarMensaje(MensajePublicitario* mensaje);
 
     Usuario* getUsuarioActual() const { return usuarioActual; }
-    int getTotalUsuarios() const { return totalUsuarios; }
+    int getTotalUsuarios() const { return gestorUsuarios->getTotalUsuarios(); }
     int getTotalCanciones() const { return totalCanciones; }
     int getTotalArtistas() const { return totalArtistas; }
     int getTotalAlbumes() const { return totalAlbumes; }
@@ -88,13 +84,17 @@ public:
     void mostrarCancionesDisponibles() const;
     bool agregarCancionAFavoritos(int idCancion);
 
-    void incrementarIteraciones(int cantidad = 1) const { totalIteraciones += cantidad; }
-    void calcularMemoria() const;
-
     bool seguirListaUsuario(const std::string& nicknameSeguido);
     void dejarDeSeguirLista();
     void combinarListaSeguida();
     void mostrarInfoListaSeguida() const;
+
+    void incrementarIteraciones(int cantidad = 1) const;
+    void calcularMemoria() const;
+
+private:
+    mutable unsigned long totalIteraciones;
+    mutable unsigned long memoriaConsumida;
 };
 
 #endif
