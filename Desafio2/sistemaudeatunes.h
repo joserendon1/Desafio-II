@@ -24,7 +24,6 @@ public:
     ~SistemaUdeATunes();
 
     void cargarDatos();
-    void guardarDatos();
 
     bool login();
     void reproducirAleatorio();
@@ -35,11 +34,6 @@ public:
     Cancion* buscarCancion(int id) const;
     Artista* buscarArtista(int id) const;
     Album* buscarAlbum(int id) const;
-
-    bool agregarUsuario(Usuario* usuario);
-    bool agregarArtista(Artista* artista);
-    bool agregarAlbum(Album* album);
-    bool agregarCancion(Cancion* cancion);
 
     Usuario* getUsuarioActual() const { return usuarioActual; }
     int getTotalUsuarios() const { return gestorUsuarios->getTotalUsuarios(); }

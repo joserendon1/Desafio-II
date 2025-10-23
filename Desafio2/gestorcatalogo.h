@@ -21,13 +21,13 @@ private:
     void redimensionarAlbumes();
     void redimensionarCanciones();
 
-public:
-    GestorCatalogo();
-    ~GestorCatalogo();
-
     bool agregarArtista(Artista* artista);
     bool agregarAlbum(Album* album);
     bool agregarCancion(Cancion* cancion);
+
+public:
+    GestorCatalogo();
+    ~GestorCatalogo();
 
     Artista* buscarArtista(int id) const;
     Album* buscarAlbum(int id) const;
@@ -36,8 +36,6 @@ public:
     void cargarArtistas();
     void cargarAlbumes();
     void cargarCanciones();
-    void guardarArtistas() const;
-    void guardarAlbumes() const;
     void guardarCanciones() const;
 
     int getTotalArtistas() const { return totalArtistas; }
@@ -50,7 +48,6 @@ public:
     void incrementarIteraciones(int cantidad = 1) const { iteraciones += cantidad; }
 
     void limpiarCatalogo();
-    void mostrarEstadisticas() const;
 };
 
 #endif

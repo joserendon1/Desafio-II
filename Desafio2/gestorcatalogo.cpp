@@ -161,25 +161,13 @@ void GestorCatalogo::cargarArtistas() {
         if (linea.empty()) continue;
 
         std::stringstream ss(linea);
-        std::string idStr, nombre, edadStr, pais, seguidoresStr, posicionStr;
+        std::string idStr, nombre;
 
         std::getline(ss, idStr, '|');
         std::getline(ss, nombre, '|');
-        std::getline(ss, edadStr, '|');
-        std::getline(ss, pais, '|');
-        std::getline(ss, seguidoresStr, '|');
-        std::getline(ss, posicionStr, '|');
 
         int id = std::stoi(idStr);
-        int edad = std::stoi(edadStr);
-        int seguidores = std::stoi(seguidoresStr);
-        int posicion = std::stoi(posicionStr);
-
         Artista* nuevoArtista = new Artista(id, nombre);
-        nuevoArtista->setEdad(edad);
-        nuevoArtista->setPais(pais);
-        nuevoArtista->setSeguidores(seguidores);
-        nuevoArtista->setPosicion(posicion);
 
         agregarArtista(nuevoArtista);
     }
@@ -200,37 +188,19 @@ void GestorCatalogo::cargarAlbumes() {
         if (linea.empty()) continue;
 
         std::stringstream ss(linea);
-        std::string idStr, nombre, fecha, duracionStr, sello, portada, puntuacionStr;
+        std::string idStr, nombre, portada;
 
         std::getline(ss, idStr, '|');
         std::getline(ss, nombre, '|');
-        std::getline(ss, fecha, '|');
-        std::getline(ss, duracionStr, '|');
-        std::getline(ss, sello, '|');
         std::getline(ss, portada, '|');
-        std::getline(ss, puntuacionStr, '|');
 
         int id = std::stoi(idStr);
-        float duracion = std::stof(duracionStr);
-        float puntuacion = std::stof(puntuacionStr);
-
         int artistaId = id / 100;
         Artista* artista = buscarArtista(artistaId);
 
         if (artista != nullptr) {
             Album* nuevoAlbum = new Album(id, nombre, artista);
-            nuevoAlbum->setFecha(fecha);
-            nuevoAlbum->setDuracion(duracion);
-            nuevoAlbum->setSello(sello);
             nuevoAlbum->setPortada(portada);
-            nuevoAlbum->setPuntuacion(puntuacion);
-
-            std::string genero;
-            while (std::getline(ss, genero, '|')) {
-                if (!genero.empty()) {
-                    nuevoAlbum->agregarGenero(genero);
-                }
-            }
 
             agregarAlbum(nuevoAlbum);
         }
@@ -286,51 +256,6 @@ void GestorCatalogo::cargarCanciones() {
     std::cout << "Canciones cargadas: " << totalCanciones << std::endl;
 }
 
-void GestorCatalogo::guardarArtistas() const {
-    std::ofstream archivo("datos/artistas.txt");
-    if (!archivo.is_open()) {
-        std::cout << "No se pudo abrir el archivo de artistas para guardar." << std::endl;
-        return;
-    }
-
-    for (int i = 0; i < totalArtistas; i++) {
-        archivo << artistas[i]->getId() << "|"
-                << artistas[i]->getNombre() << "|"
-                << artistas[i]->getEdad() << "|"
-                << artistas[i]->getPais() << "|"
-                << artistas[i]->getSeguidores() << "|"
-                << artistas[i]->getPosicion() << std::endl;
-    }
-
-    archivo.close();
-}
-
-void GestorCatalogo::guardarAlbumes() const {
-    std::ofstream archivo("datos/albumes.txt");
-    if (!archivo.is_open()) {
-        std::cout << "No se pudo abrir el archivo de álbumes para guardar." << std::endl;
-        return;
-    }
-
-    for (int i = 0; i < totalAlbumes; i++) {
-        archivo << albumes[i]->getId() << "|"
-                << albumes[i]->getNombre() << "|"
-                << albumes[i]->getFecha() << "|"
-                << albumes[i]->getDuracion() << "|"
-                << albumes[i]->getSello() << "|"
-                << albumes[i]->getPortada() << "|"
-                << albumes[i]->getPuntuacion();
-
-        std::string* generos = albumes[i]->getGeneros();
-        for (int j = 0; j < albumes[i]->getTotalGeneros(); j++) {
-            archivo << "|" << generos[j];
-        }
-        archivo << std::endl;
-    }
-
-    archivo.close();
-}
-
 void GestorCatalogo::guardarCanciones() const {
     std::ofstream archivo("datos/canciones.txt");
     if (!archivo.is_open()) {
@@ -348,12 +273,4 @@ void GestorCatalogo::guardarCanciones() const {
     }
 
     archivo.close();
-}
-
-void GestorCatalogo::mostrarEstadisticas() const {
-    std::cout << "\n📊 ESTADÍSTICAS DEL CATÁLOGO" << std::endl;
-    std::cout << "Artistas: " << totalArtistas << std::endl;
-    std::cout << "Álbumes: " << totalAlbumes << std::endl;
-    std::cout << "Canciones: " << totalCanciones << std::endl;
-    std::cout << "Iteraciones: " << iteraciones << std::endl;
 }

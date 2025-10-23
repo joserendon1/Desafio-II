@@ -3,13 +3,11 @@
 #include <iostream>
 
 Usuario::Usuario()
-    : nickname(""), membresia("estandar"), ciudad(""), pais(""),
-    fechaInscripcion(""), listaFavoritos(nullptr) {
+    : nickname(""), membresia("estandar"), listaFavoritos(nullptr) {
 }
 
 Usuario::Usuario(const std::string& nickname, const std::string& membresia)
-    : nickname(nickname), membresia(membresia), ciudad(""), pais(""),
-    fechaInscripcion(""), listaFavoritos(nullptr) {
+    : nickname(nickname), membresia(membresia), listaFavoritos(nullptr) {
     if (membresia == "premium") {
         listaFavoritos = new ListaFavoritos(this);
     }
@@ -21,10 +19,6 @@ Usuario::~Usuario() {
     }
 }
 
-bool Usuario::operator==(const Usuario& otro) const {
-    return nickname == otro.nickname;
-}
-
 bool Usuario::esPremium() const {
-    return membresia == "premium";  // <- SIN TILDE
+    return membresia == "premium";
 }

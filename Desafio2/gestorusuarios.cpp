@@ -84,43 +84,18 @@ void GestorUsuarios::cargarUsuarios() {
         if (linea.empty()) continue;
 
         std::stringstream ss(linea);
-        std::string nickname, membresia, ciudad, pais, fecha;
+        std::string nickname, membresia;
 
         std::getline(ss, nickname, '|');
         std::getline(ss, membresia, '|');
-        std::getline(ss, ciudad, '|');
-        std::getline(ss, pais, '|');
-        std::getline(ss, fecha, '|');
 
         Usuario* nuevoUsuario = new Usuario(nickname, membresia);
-        nuevoUsuario->setCiudad(ciudad);
-        nuevoUsuario->setPais(pais);
-        nuevoUsuario->setFechaInscripcion(fecha);
 
         agregarUsuario(nuevoUsuario);
     }
 
     archivo.close();
     std::cout << "Usuarios cargados: " << totalUsuarios << std::endl;
-}
-
-void GestorUsuarios::guardarUsuarios() const {
-    std::ofstream archivo("datos/usuarios.txt");
-    if (!archivo.is_open()) {
-        std::cout << "No se pudo abrir el archivo de usuarios para guardar." << std::endl;
-        return;
-    }
-
-    for (int i = 0; i < totalUsuarios; i++) {
-        archivo << usuarios[i]->getNickname() << "|"
-                << usuarios[i]->getMembresia() << "|"
-                << usuarios[i]->getCiudad() << "|"
-                << usuarios[i]->getPais() << "|"
-                << usuarios[i]->getFechaInscripcion() << std::endl;
-    }
-
-    archivo.close();
-    std::cout << "Usuarios guardados: " << totalUsuarios << std::endl;
 }
 
 void GestorUsuarios::limpiarUsuarios() {

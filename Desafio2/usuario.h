@@ -9,9 +9,6 @@ class Usuario {
 private:
     std::string nickname;
     std::string membresia;
-    std::string ciudad;
-    std::string pais;
-    std::string fechaInscripcion;
     ListaFavoritos* listaFavoritos;
 
 public:
@@ -19,21 +16,13 @@ public:
     Usuario(const std::string& nickname, const std::string& membresia);
     ~Usuario();
 
-    bool operator==(const Usuario& otro) const;
-
     bool esPremium() const;
 
     std::string getNickname() const { return nickname; }
     std::string getMembresia() const { return membresia; }
-    std::string getCiudad() const { return ciudad; }
-    std::string getPais() const { return pais; }
-    std::string getFechaInscripcion() const { return fechaInscripcion; }
     ListaFavoritos* getListaFavoritos() const { return listaFavoritos; }
 
     void setNickname(const std::string& nickname) { this->nickname = nickname; }
-    void setCiudad(const std::string& ciudad) { this->ciudad = ciudad; }
-    void setPais(const std::string& pais) { this->pais = pais; }
-    void setFechaInscripcion(const std::string& fecha) { fechaInscripcion = fecha; }
 };
 
 #endif

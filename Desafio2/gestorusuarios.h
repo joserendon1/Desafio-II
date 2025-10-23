@@ -12,17 +12,16 @@ private:
     mutable unsigned long iteraciones;
 
     void redimensionar();
+    bool agregarUsuario(Usuario* usuario);
 
 public:
     GestorUsuarios();
     ~GestorUsuarios();
 
-    bool agregarUsuario(Usuario* usuario);
     Usuario* buscarUsuario(const std::string& nickname) const;
     bool autenticarUsuario(const std::string& nickname, Usuario*& usuarioActual) const;
 
     void cargarUsuarios();
-    void guardarUsuarios() const;
 
     int getTotalUsuarios() const { return totalUsuarios; }
     Usuario** getUsuarios() const { return usuarios; }

@@ -17,14 +17,13 @@ private:
 
     void redimensionarMensajes();
     void cargarMensajes();
-    void guardarMensajes() const;
 
 public:
     GestorAlmacenamiento(GestorUsuarios* gestorUsuarios, GestorCatalogo* gestorCatalogo);
     ~GestorAlmacenamiento();
 
     void cargarTodo();
-    void guardarTodo() const;
+    void guardarCambios() const;  // CAMBIAR NOMBRE: solo guarda lo que cambia
 
     MensajePublicitario** getMensajes() const { return mensajes; }
     int getTotalMensajes() const { return totalMensajes; }

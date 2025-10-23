@@ -24,7 +24,7 @@ SistemaUdeATunes::SistemaUdeATunes()
 }
 
 SistemaUdeATunes::~SistemaUdeATunes() {
-    gestorAlmacenamiento->guardarTodo();
+    gestorAlmacenamiento->guardarCambios();  // CAMBIAR: guardarCambios en lugar de guardarTodo
 
     if (reproductor != nullptr) {
         delete reproductor;
@@ -38,10 +38,6 @@ SistemaUdeATunes::~SistemaUdeATunes() {
 
 void SistemaUdeATunes::cargarDatos() {
     gestorAlmacenamiento->cargarTodo();
-}
-
-void SistemaUdeATunes::guardarDatos() {
-    gestorAlmacenamiento->guardarTodo();
 }
 
 bool SistemaUdeATunes::login() {
@@ -148,22 +144,6 @@ bool SistemaUdeATunes::agregarCancionAFavoritos(int idCancion) {
         std::cout << "La cancion ya esta en favoritos o la lista está llena." << std::endl;
         return false;
     }
-}
-
-bool SistemaUdeATunes::agregarUsuario(Usuario* usuario) {
-    return gestorUsuarios->agregarUsuario(usuario);
-}
-
-bool SistemaUdeATunes::agregarArtista(Artista* artista) {
-    return gestorCatalogo->agregarArtista(artista);
-}
-
-bool SistemaUdeATunes::agregarAlbum(Album* album) {
-    return gestorCatalogo->agregarAlbum(album);
-}
-
-bool SistemaUdeATunes::agregarCancion(Cancion* cancion) {
-    return gestorCatalogo->agregarCancion(cancion);
 }
 
 void SistemaUdeATunes::calcularMemoria() const {

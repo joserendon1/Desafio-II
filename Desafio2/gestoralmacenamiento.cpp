@@ -47,16 +47,12 @@ void GestorAlmacenamiento::cargarTodo() {
     std::cout << "=== CARGA DE DATOS COMPLETADA ===" << std::endl;
 }
 
-void GestorAlmacenamiento::guardarTodo() const {
-    std::cout << "=== GUARDANDO DATOS DEL SISTEMA ===" << std::endl;
+void GestorAlmacenamiento::guardarCambios() const {
+    std::cout << "=== GUARDANDO CAMBIOS ===" << std::endl;
 
-    gestorUsuarios->guardarUsuarios();
-    gestorCatalogo->guardarArtistas();
-    gestorCatalogo->guardarAlbumes();
     gestorCatalogo->guardarCanciones();
-    guardarMensajes();
 
-    std::cout << "=== GUARDADO DE DATOS COMPLETADO ===" << std::endl;
+    std::cout << "=== GUARDADO DE CAMBIOS COMPLETADO ===" << std::endl;
 }
 
 void GestorAlmacenamiento::cargarMensajes() {
@@ -87,18 +83,3 @@ void GestorAlmacenamiento::cargarMensajes() {
     std::cout << "Mensajes cargados: " << totalMensajes << std::endl;
 }
 
-void GestorAlmacenamiento::guardarMensajes() const {
-    std::ofstream archivo("datos/mensajes.txt");
-    if (!archivo.is_open()) {
-        std::cout << "No se pudo abrir el archivo de mensajes para guardar." << std::endl;
-        return;
-    }
-
-    for (int i = 0; i < totalMensajes; i++) {
-        archivo << mensajes[i]->getTexto() << "|"
-                << mensajes[i]->getCategoria() << std::endl;
-    }
-
-    archivo.close();
-    std::cout << "Mensajes guardados: " << totalMensajes << std::endl;
-}
