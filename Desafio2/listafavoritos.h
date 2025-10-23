@@ -13,6 +13,9 @@ private:
     ListaFavoritos* listaSeguida;
 
     void redimensionar();
+    bool* cancionesPropias;
+    Cancion** cancionesSeguidas;
+    int totalCancionesSeguidas;
 
 public:
     ListaFavoritos(Usuario* usuario);
@@ -29,6 +32,11 @@ public:
 
     ListaFavoritos* getListaSeguida() const { return listaSeguida; }
     bool estaSiguiendoLista() const { return listaSeguida != nullptr; }
+    int getTotalCancionesPropias() const;
+    int getTotalCancionesSeguidas() const;
+    int getTotalCancionesVisibles() const;
+    Cancion* obtenerCancion(int index) const;
+    void actualizarListaSeguida();
 
     int getTotalCanciones() const { return totalCanciones; }
     int getCapacidad() const { return capacidad; }

@@ -42,7 +42,8 @@ void menuGestionarFavoritos(SistemaUdeATunes& sistema) {
         std::cout << "2. Agregar cancion a favoritos" << std::endl;
         std::cout << "3. Eliminar cancion de favoritos" << std::endl;
         std::cout << "4. Reproducir lista de favoritos" << std::endl;
-        std::cout << "0. Volver" << std::endl;  // Cambié a 0
+        std::cout << "5. Dejar de seguir lista actual" << std::endl;
+        std::cout << "0. Volver" << std::endl;
         std::cout << "Seleccione una opcion: ";
         std::cin >> opcion;
         limpiarBuffer();
@@ -84,6 +85,11 @@ void menuGestionarFavoritos(SistemaUdeATunes& sistema) {
                 std::cin >> aleatorio;
                 limpiarBuffer();
                 sistema.getUsuarioActual()->getListaFavoritos()->reproducir(aleatorio);
+            }
+            break;
+        case 5:
+            if (sistema.getUsuarioActual()->getListaFavoritos() != nullptr) {
+                sistema.dejarDeSeguirLista();
             }
             break;
         case 0:
