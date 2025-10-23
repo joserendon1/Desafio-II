@@ -19,17 +19,14 @@ public:
     ~GestorUsuarios();
 
     Usuario* buscarUsuario(const std::string& nickname) const;
-    bool autenticarUsuario(const std::string& nickname, Usuario*& usuarioActual) const;
 
     void cargarUsuarios();
-
     int getTotalUsuarios() const { return totalUsuarios; }
     Usuario** getUsuarios() const { return usuarios; }
     unsigned long getIteraciones() const { return iteraciones; }
     void incrementarIteraciones(int cantidad = 1) const { iteraciones += cantidad; }
 
-    bool existeUsuario(const std::string& nickname) const;
-    void limpiarUsuarios();
+    void limpiarUsuarios();  // MANTENER (se usa en destructor)
 };
 
 #endif

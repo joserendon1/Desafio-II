@@ -8,36 +8,98 @@
 #include "ListaFavoritos.h"
 #include "GestorUsuarios.h"
 #include "GestorCatalogo.h"
-#include "GestorAlmacenamiento.h"
 #include <iostream>
 #include <string>
-//#include <fstream>
-//#include <sstream>
+#include <fstream>
+#include <sstream>
 
 SistemaUdeATunes::SistemaUdeATunes()
     : gestorUsuarios(new GestorUsuarios()),
     gestorCatalogo(new GestorCatalogo()),
-    gestorAlmacenamiento(new GestorAlmacenamiento(gestorUsuarios, gestorCatalogo)),
-    usuarioActual(nullptr), reproductor(nullptr),
-    totalIteraciones(0), memoriaConsumida(0) {
+    mensajes(nullptr),
+    totalMensajes(0),
+    capacidadMensajes(10),
+    usuarioActual(nullptr),
+    reproductor(nullptr),
+    totalIteraciones(0),
+    memoriaConsumida(0) {
 
+    mensajes = new MensajePublicitario*[capacidadMensajes];
 }
 
 SistemaUdeATunes::~SistemaUdeATunes() {
-    gestorAlmacenamiento->guardarCambios();  // CAMBIAR: guardarCambios en lugar de guardarTodo
+    guardarCambios();
 
     if (reproductor != nullptr) {
         delete reproductor;
     }
 
-    delete gestorAlmacenamiento;
+    for (int i = 0; i < totalMensajes; i++) {
+        delete mensajes[i];
+    }
+    delete[] mensajes;
+
     delete gestorCatalogo;
     delete gestorUsuarios;
 }
 
+void SistemaUdeATunes::redimensionarMensajes() {
+    int nuevaCapacidad = capacidadMensajes * 2;
+    MensajePublicitario** nuevoArray = new MensajePublicitario*[nuevaCapacidad];
+
+    for (int i = 0; i < totalMensajes; i++) {
+        nuevoArray[i] = mensajes[i];
+    }
+
+    delete[] mensajes;
+    mensajes = nuevoArray;
+    capacidadMensajes = nuevaCapacidad;
+}
+
+void SistemaUdeATunes::cargarMensajes() {
+    std::ifstream archivo("datos/mensajes.txt");
+    if (!archivo.is_open()) {
+        std::cout << "No se pudo abrir el archivo de mensajes." << std::endl;
+        return;
+    }
+
+    std::string linea;
+    while (std::getline(archivo, linea)) {
+        if (linea.empty()) continue;
+
+        size_t pos = linea.find_last_of('|');
+        if (pos == std::string::npos) continue;
+
+        std::string texto = linea.substr(0, pos);
+        char categoria = linea[pos + 1];
+
+        MensajePublicitario* nuevoMensaje = new MensajePublicitario(texto, categoria);
+        if (totalMensajes >= capacidadMensajes) {
+            redimensionarMensajes();
+        }
+        mensajes[totalMensajes++] = nuevoMensaje;
+    }
+
+    archivo.close();
+    std::cout << "Mensajes cargados: " << totalMensajes << std::endl;
+}
+
+void SistemaUdeATunes::guardarCambios() const {
+    std::cout << "=== GUARDANDO CAMBIOS ===" << std::endl;
+    gestorCatalogo->guardarCanciones();
+    std::cout << "=== GUARDADO DE CAMBIOS COMPLETADO ===" << std::endl;
+}
 
 void SistemaUdeATunes::cargarDatos() {
-    gestorAlmacenamiento->cargarTodo();
+    std::cout << "=== CARGANDO DATOS DEL SISTEMA ===" << std::endl;
+
+    gestorUsuarios->cargarUsuarios();
+    gestorCatalogo->cargarArtistas();
+    gestorCatalogo->cargarAlbumes();
+    gestorCatalogo->cargarCanciones();
+    cargarMensajes();
+
+    std::cout << "=== CARGA DE DATOS COMPLETADA ===" << std::endl;
 }
 
 bool SistemaUdeATunes::login() {
@@ -71,8 +133,8 @@ void SistemaUdeATunes::reproducirAleatorio() {
     Reproductor* nuevoReproductor = new Reproductor(
         gestorCatalogo->getCanciones(),
         gestorCatalogo->getTotalCanciones(),
-        gestorAlmacenamiento->getMensajes(),
-        gestorAlmacenamiento->getTotalMensajes(),
+        mensajes,
+        totalMensajes,
         usuarioActual
         );
 
@@ -94,7 +156,7 @@ void SistemaUdeATunes::mostrarMetricas() const {
     std::cout << "Artistas en plataforma: " << gestorCatalogo->getTotalArtistas() << std::endl;
     std::cout << "Álbumes disponibles: " << gestorCatalogo->getTotalAlbumes() << std::endl;
     std::cout << "Canciones en catálogo: " << gestorCatalogo->getTotalCanciones() << std::endl;
-    std::cout << "Mensajes publicitarios: " << gestorAlmacenamiento->getTotalMensajes() << std::endl;
+    std::cout << "Mensajes publicitarios: " << totalMensajes << std::endl;  // Cambiar: usar totalMensajes directo
 }
 
 Usuario* SistemaUdeATunes::buscarUsuario(const std::string& nickname) const {
@@ -153,7 +215,7 @@ void SistemaUdeATunes::calcularMemoria() const {
     memoriaConsumida += gestorCatalogo->getTotalArtistas() * (sizeof(Artista) + 40);
     memoriaConsumida += gestorCatalogo->getTotalAlbumes() * (sizeof(Album) + 100);
     memoriaConsumida += gestorCatalogo->getTotalCanciones() * (sizeof(Cancion) + 80);
-    memoriaConsumida += gestorAlmacenamiento->getTotalMensajes() * (sizeof(MensajePublicitario) + 60);
+    memoriaConsumida += totalMensajes * (sizeof(MensajePublicitario) + 60);  // Cambiar: usar totalMensajes directo
 }
 
 void SistemaUdeATunes::mostrarMetricasEficiencia() const {

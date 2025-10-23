@@ -4,20 +4,27 @@
 #include <string>
 #include "GestorUsuarios.h"
 #include "GestorCatalogo.h"
-#include "GestorAlmacenamiento.h"
+#include "MensajePublicitario.h"
 #include "reproductor.h"
 
 class SistemaUdeATunes {
 private:
     GestorUsuarios* gestorUsuarios;
     GestorCatalogo* gestorCatalogo;
-    GestorAlmacenamiento* gestorAlmacenamiento;
+
+    MensajePublicitario** mensajes;
+    int totalMensajes;
+    int capacidadMensajes;
 
     Usuario* usuarioActual;
     Reproductor* reproductor;
 
     mutable unsigned long totalIteraciones;
     mutable unsigned long memoriaConsumida;
+
+    void redimensionarMensajes();
+    void cargarMensajes();
+    void guardarCambios() const;
 
 public:
     SistemaUdeATunes();
@@ -40,9 +47,9 @@ public:
     int getTotalCanciones() const { return gestorCatalogo->getTotalCanciones(); }
     int getTotalArtistas() const { return gestorCatalogo->getTotalArtistas(); }
     int getTotalAlbumes() const { return gestorCatalogo->getTotalAlbumes(); }
-    int getTotalMensajes() const { return gestorAlmacenamiento->getTotalMensajes(); }
+    int getTotalMensajes() const { return totalMensajes; }
     Cancion** getCanciones() const { return gestorCatalogo->getCanciones(); }
-    MensajePublicitario** getMensajes() const { return gestorAlmacenamiento->getMensajes(); }
+    MensajePublicitario** getMensajes() const { return mensajes; }
 
     void setUsuarioActual(Usuario* usuario) { usuarioActual = usuario; }
     void mostrarCancionesDisponibles() const;

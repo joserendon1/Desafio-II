@@ -112,17 +112,14 @@ void Reproductor::reproducirAleatorio() {
         cancionActual->incrementarReproducciones();
         contadorCancionesReproducidas++;
 
-        // MOSTRAR INTERFAZ MEJORADA
         mostrarInterfazReproduccion();
 
-        // ESPERAR SELECCIÓN DEL USUARIO
         int opcion;
         std::cin >> opcion;
 
         switch (opcion) {
-        case 1: // Reproducir
+        case 1:
             std::cout << "Reproduciendo..." << std::endl;
-            // Simular reproducción por 3 segundos
             {
                 auto start = std::chrono::steady_clock::now();
                 while (std::chrono::steady_clock::now() - start < std::chrono::seconds(3)) {}
@@ -130,47 +127,44 @@ void Reproductor::reproducirAleatorio() {
             std::cout << "Cancion finalizada." << std::endl;
             break;
 
-        case 2: // Detener
+        case 2:
             reproduciendo = false;
             std::cout << "Reproduccion detenida." << std::endl;
             break;
 
-        case 3: // Siguiente (solo premium)
+        case 3:
             if (usuarioActual->esPremium()) {
                 std::cout << "Saltando a siguiente cancion..." << std::endl;
-                // No incrementar i para que avance en el próximo ciclo
                 i--;
                 siguienteCancion();
             } else {
                 std::cout << "Opcion no disponible para usuarios estandar." << std::endl;
-                i--; // Permite volver a mostrar la interfaz
+                i--;
             }
             break;
 
-        case 4: // Anterior (solo premium)
+        case 4:
             if (usuarioActual->esPremium()) {
                 cancionAnterior();
-                // Ajustar contador para repetir esta canción
                 i--;
             } else {
                 std::cout << "Opcion no disponible para usuarios estandar." << std::endl;
-                i--; // Permite volver a mostrar la interfaz
+                i--;
             }
             break;
 
-        case 5: // Repetir (solo premium)
+        case 5:
             if (usuarioActual->esPremium()) {
                 toggleRepetir();
-                i--; // Repetir esta canción
+                i--;
             } else {
                 std::cout << "Opcion no disponible para usuarios estandar." << std::endl;
-                i--; // Permite volver a mostrar la interfaz
+                i--;
             }
             break;
 
         default:
             std::cout << "Opcion no valida. Reproduciendo automaticamente..." << std::endl;
-            // Reproducción automática por 3 segundos
             {
                 auto start = std::chrono::steady_clock::now();
                 while (std::chrono::steady_clock::now() - start < std::chrono::seconds(3)) {}
@@ -180,7 +174,7 @@ void Reproductor::reproducirAleatorio() {
         }
 
         if (modoRepetir && reproduciendo) {
-            i--; // Repetir la misma canción
+            i--;
             std::cout << "Modo repetir activado - repitiendo cancion..." << std::endl;
         }
     }

@@ -7,7 +7,6 @@ SOURCES += \
         album.cpp \
         artista.cpp \
         cancion.cpp \
-        gestoralmacenamiento.cpp \
         gestorcatalogo.cpp \
         gestorusuarios.cpp \
         listafavoritos.cpp \
@@ -21,7 +20,6 @@ HEADERS += \
     album.h \
     artista.h \
     cancion.h \
-    gestoralmacenamiento.h \
     gestorcatalogo.h \
     gestorusuarios.h \
     listafavoritos.h \

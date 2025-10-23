@@ -46,30 +46,15 @@ bool GestorUsuarios::agregarUsuario(Usuario* usuario) {
 }
 
 Usuario* GestorUsuarios::buscarUsuario(const std::string& nickname) const {
-    incrementarIteraciones(); // Llamada al método
+    incrementarIteraciones();
 
     for (int i = 0; i < totalUsuarios; i++) {
-        incrementarIteraciones(); // Cada iteración
+        incrementarIteraciones();
         if (usuarios[i]->getNickname() == nickname) {
             return usuarios[i];
         }
     }
     return nullptr;
-}
-
-bool GestorUsuarios::autenticarUsuario(const std::string& nickname, Usuario*& usuarioActual) const {
-    incrementarIteraciones();
-    Usuario* usuario = buscarUsuario(nickname);
-
-    if (usuario != nullptr) {
-        usuarioActual = usuario;
-        return true;
-    }
-    return false;
-}
-
-bool GestorUsuarios::existeUsuario(const std::string& nickname) const {
-    return buscarUsuario(nickname) != nullptr;
 }
 
 void GestorUsuarios::cargarUsuarios() {

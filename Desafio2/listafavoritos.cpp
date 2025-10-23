@@ -5,7 +5,7 @@
 #include "Artista.h"
 #include <iostream>
 #include <chrono>
-
+#include <random>
 
 ListaFavoritos::ListaFavoritos(Usuario* usuario)
     : totalCanciones(0), capacidad(100), usuario(usuario), listaSeguida(nullptr) {
@@ -67,6 +67,41 @@ bool ListaFavoritos::contieneCancion(int idCancion) const {
     return false;
 }
 
+int ListaFavoritos::getTotalCancionesSeguidas() const {
+    if (listaSeguida != nullptr) {
+        return listaSeguida->getTotalCancionesPropias(); // Consulta EN TIEMPO REAL
+    }
+    return 0;
+}
+
+int ListaFavoritos::getTotalCancionesVisibles() const {
+    return getTotalCancionesPropias() + getTotalCancionesSeguidas();
+}
+
+Cancion* ListaFavoritos::obtenerCancion(int index) const {
+    int totalPropias = getTotalCancionesPropias();
+
+    if (index < totalPropias) {
+        return canciones[index];
+    }
+
+    if (listaSeguida != nullptr) {
+        int indexSeguida = index - totalPropias;
+        if (indexSeguida < listaSeguida->getTotalCancionesPropias()) {
+            return listaSeguida->obtenerCancion(indexSeguida); // Acceso directo EN TIEMPO REAL
+        }
+    }
+
+    return nullptr;
+}
+
+Cancion* ListaFavoritos::obtenerCancionSeguida(int index) const {
+    if (listaSeguida != nullptr && index < listaSeguida->getTotalCancionesPropias()) {
+        return listaSeguida->obtenerCancion(index);
+    }
+    return nullptr;
+}
+
 void ListaFavoritos::reproducir(bool ordenAleatorio) const {
     int totalVisibles = getTotalCancionesVisibles();
 
@@ -77,6 +112,8 @@ void ListaFavoritos::reproducir(bool ordenAleatorio) const {
 
     std::cout << "\n Reproduciendo lista de favoritos ("
               << totalVisibles << " canciones)" << std::endl;
+    std::cout << " - Propias: " << getTotalCancionesPropias() << std::endl;
+    std::cout << " - Seguidas: " << getTotalCancionesSeguidas() << std::endl;
 
     if (ordenAleatorio) {
         std::cout << "Modo: Aleatorio" << std::endl;
@@ -86,7 +123,6 @@ void ListaFavoritos::reproducir(bool ordenAleatorio) const {
 
     for (int i = 0; i < totalVisibles; i++) {
         Cancion* cancionActual = obtenerCancion(i);
-
         if (cancionActual == nullptr) continue;
 
         std::cout << "\n=== REPRODUCIENDO ===" << std::endl;
@@ -94,10 +130,10 @@ void ListaFavoritos::reproducir(bool ordenAleatorio) const {
         std::cout << "Album: " << cancionActual->getAlbum()->getNombre() << std::endl;
         std::cout << "Cancion: " << cancionActual->getNombre() << std::endl;
 
-        if (i < totalCanciones) {
+        if (i < getTotalCancionesPropias()) {
             std::cout << "[PROPIA] ";
         } else {
-            std::cout << "[SEGUIDA] ";
+            std::cout << "[SEGUIDA de " << listaSeguida->getUsuario()->getNickname() << "] ";
         }
 
         std::cout << "Duracion: " << cancionActual->getDuracion() << " minutos" << std::endl;
@@ -105,8 +141,7 @@ void ListaFavoritos::reproducir(bool ordenAleatorio) const {
 
         std::cout << "Reproduciendo..." << std::endl;
         auto start = std::chrono::steady_clock::now();
-        while (std::chrono::steady_clock::now() - start < std::chrono::seconds(2)) {
-        }
+        while (std::chrono::steady_clock::now() - start < std::chrono::seconds(2)) {}
         std::cout << "Cancion finalizada." << std::endl;
 
         cancionActual->incrementarReproducciones();
@@ -121,9 +156,18 @@ void ListaFavoritos::seguirLista(ListaFavoritos* otraLista) {
         return;
     }
 
+    if (otraLista == this) {
+        std::cout << "No puedes seguir tu propia lista." << std::endl;
+        return;
+    }
+
+    if (otraLista->getUsuario() == usuario) {
+        std::cout << "No puedes seguir tu propia lista." << std::endl;
+        return;
+    }
+
     listaSeguida = otraLista;
     std::cout << "Ahora sigues la lista de: " << otraLista->getUsuario()->getNickname() << std::endl;
-
 }
 
 void ListaFavoritos::dejarDeSeguirLista() {
@@ -134,32 +178,6 @@ void ListaFavoritos::dejarDeSeguirLista() {
 
     std::cout << "Dejaste de seguir la lista de: " << listaSeguida->getUsuario()->getNickname() << std::endl;
     listaSeguida = nullptr;
-
-}
-
-int ListaFavoritos::getTotalCancionesVisibles() const {
-    int total = totalCanciones;
-
-    if (listaSeguida != nullptr) {
-        total += listaSeguida->getTotalCanciones();
-    }
-
-    return total;
-}
-
-Cancion* ListaFavoritos::obtenerCancion(int index) const {
-    if (index < totalCanciones) {
-        return canciones[index];
-    }
-
-    if (listaSeguida != nullptr) {
-        int indexSeguida = index - totalCanciones;
-        if (indexSeguida < listaSeguida->getTotalCanciones()) {
-            return listaSeguida->getCanciones()[indexSeguida];
-        }
-    }
-
-    return nullptr;
 }
 
 void ListaFavoritos::mostrarLista() const {
@@ -171,6 +189,8 @@ void ListaFavoritos::mostrarLista() const {
     }
 
     std::cout << "\nTu lista de favoritos (" << totalVisibles << " canciones):" << std::endl;
+    std::cout << "   Propias: " << getTotalCancionesPropias() << std::endl;
+    std::cout << "   Seguidas: " << getTotalCancionesSeguidas() << std::endl;
 
     for (int i = 0; i < totalCanciones; i++) {
         std::cout << "[PROPIA] " << canciones[i]->getNombre()
@@ -178,13 +198,14 @@ void ListaFavoritos::mostrarLista() const {
     }
 
     if (listaSeguida != nullptr) {
-        Cancion** cancionesSeguida = listaSeguida->getCanciones();
-        int totalSeguida = listaSeguida->getTotalCanciones();
-
+        int totalSeguida = listaSeguida->getTotalCancionesPropias();
         for (int i = 0; i < totalSeguida; i++) {
-            std::cout << "[SEGUIDA de " << listaSeguida->getUsuario()->getNickname() << "] "
-                      << cancionesSeguida[i]->getNombre()
-                      << " | Artista: " << cancionesSeguida[i]->getAlbum()->getArtista()->getNombre() << std::endl;
+            Cancion* cancionSeguida = listaSeguida->obtenerCancion(i);
+            if (cancionSeguida != nullptr) {
+                std::cout << "[SEGUIDA de " << listaSeguida->getUsuario()->getNickname() << "] "
+                          << cancionSeguida->getNombre()
+                          << " | Artista: " << cancionSeguida->getAlbum()->getArtista()->getNombre() << std::endl;
+            }
         }
     }
 }
