@@ -35,9 +35,9 @@ void Reproductor::mostrarInterfazReproduccion() {
         MensajePublicitario* mensaje = obtenerMensajeAleatorio();
         if (mensaje != nullptr) {
             std::cout << "\n\"Mensaje publicitario\" (Si aplica)" << std::endl;
-            std::cout << "Categoria del mensaje (Si aplica): " << mensaje->getCategoria() << std::endl;
+            std::cout << "Categoria del mensaje (Si aplica): " << mensaje->categoria << std::endl;
             std::cout << std::endl;
-            std::cout << "\"" << mensaje->getTexto() << "\"" << std::endl;
+            std::cout << "\"" << mensaje->texto << "\"" << std::endl;
             std::cout << std::endl;
             std::cout << "Publicidad en progreso..." << std::endl;
             auto start = std::chrono::steady_clock::now();
@@ -46,9 +46,9 @@ void Reproductor::mostrarInterfazReproduccion() {
     }
 
     std::cout << "\n";
-    std::cout << "Cantante: " << cancionActual->getAlbum()->getArtista()->getNombre() << std::endl;
-    std::cout << "Album: " << cancionActual->getAlbum()->getNombre() << std::endl;
-    std::cout << "Ruta a la portada del album: " << cancionActual->getAlbum()->getPortada() << std::endl;
+    std::cout << "Cantante: " << cancionActual->getAlbum()->artista->nombre << std::endl;
+    std::cout << "Album: " << cancionActual->getAlbum()->nombre << std::endl;
+    std::cout << "Ruta a la portada del album: " << cancionActual->getAlbum()->portada << std::endl;
     std::cout << std::endl;
     std::cout << "Titulo de la cancion reproducida: " << cancionActual->getNombre() << std::endl;
     std::cout << "Ruta al archivo de audio: " << cancionActual->obtenerRuta(usuarioActual->esPremium()) << std::endl;
@@ -72,14 +72,14 @@ MensajePublicitario* Reproductor::obtenerMensajeAleatorio() {
 
     int pesoTotal = 0;
     for (int i = 0; i < totalMensajes; i++) {
-        pesoTotal += todosLosMensajes[i]->getPrioridad();
+        pesoTotal += todosLosMensajes[i]->prioridad;
     }
 
     int randomValue = generarNumeroAleatorio(pesoTotal);
     int accumulatedWeight = 0;
 
     for (int i = 0; i < totalMensajes; i++) {
-        accumulatedWeight += todosLosMensajes[i]->getPrioridad();
+        accumulatedWeight += todosLosMensajes[i]->prioridad;
         if (randomValue < accumulatedWeight) {
             return todosLosMensajes[i];
         }

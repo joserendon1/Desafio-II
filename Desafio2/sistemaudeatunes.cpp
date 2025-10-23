@@ -183,7 +183,7 @@ void SistemaUdeATunes::mostrarCancionesDisponibles() const {
     for (int i = 0; i < totalCanciones; i++) {
         std::cout << "ID: " << canciones[i]->getId()
         << " | " << canciones[i]->getNombre()
-        << " - " << canciones[i]->getAlbum()->getArtista()->getNombre() << std::endl;
+        << " - " << canciones[i]->getAlbum()->artista->nombre << std::endl;
     }
 }
 
@@ -215,7 +215,8 @@ void SistemaUdeATunes::calcularMemoria() const {
     memoriaConsumida += gestorCatalogo->getTotalArtistas() * (sizeof(Artista) + 40);
     memoriaConsumida += gestorCatalogo->getTotalAlbumes() * (sizeof(Album) + 100);
     memoriaConsumida += gestorCatalogo->getTotalCanciones() * (sizeof(Cancion) + 80);
-    memoriaConsumida += totalMensajes * (sizeof(MensajePublicitario) + 60);  // Cambiar: usar totalMensajes directo
+    memoriaConsumida += totalMensajes * (sizeof(MensajePublicitario) + 60);
+
 }
 
 void SistemaUdeATunes::mostrarMetricasEficiencia() const {

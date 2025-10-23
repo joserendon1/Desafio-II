@@ -71,7 +71,7 @@ void GestorCatalogo::redimensionarCanciones() {
 bool GestorCatalogo::agregarArtista(Artista* artista) {
     incrementarIteraciones();
 
-    if (artista == nullptr || buscarArtista(artista->getId()) != nullptr) {
+    if (artista == nullptr || buscarArtista(artista->id) != nullptr) {
         return false;
     }
 
@@ -86,7 +86,7 @@ bool GestorCatalogo::agregarArtista(Artista* artista) {
 bool GestorCatalogo::agregarAlbum(Album* album) {
     incrementarIteraciones();
 
-    if (album == nullptr || buscarAlbum(album->getId()) != nullptr) {
+    if (album == nullptr || buscarAlbum(album->id) != nullptr) {
         return false;
     }
 
@@ -118,7 +118,7 @@ Artista* GestorCatalogo::buscarArtista(int id) const {
 
     for (int i = 0; i < totalArtistas; i++) {
         incrementarIteraciones();
-        if (artistas[i]->getId() == id) {
+        if (artistas[i]->id == id) {
             return artistas[i];
         }
     }
@@ -130,7 +130,7 @@ Album* GestorCatalogo::buscarAlbum(int id) const {
 
     for (int i = 0; i < totalAlbumes; i++) {
         incrementarIteraciones();
-        if (albumes[i]->getId() == id) {
+        if (albumes[i]->id == id) {
             return albumes[i];
         }
     }
@@ -200,7 +200,7 @@ void GestorCatalogo::cargarAlbumes() {
 
         if (artista != nullptr) {
             Album* nuevoAlbum = new Album(id, nombre, artista);
-            nuevoAlbum->setPortada(portada);
+            nuevoAlbum->portada = portada;
 
             agregarAlbum(nuevoAlbum);
         }

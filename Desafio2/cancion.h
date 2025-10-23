@@ -3,7 +3,7 @@
 
 #include <string>
 
-class Album;
+struct Album;
 
 class Cancion {
 private:
