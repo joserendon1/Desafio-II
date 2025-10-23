@@ -31,44 +31,40 @@ int Reproductor::generarNumeroAleatorio(int maximo) {
 void Reproductor::mostrarInterfazReproduccion() {
     if (cancionActual == nullptr) return;
 
-    std::cout << "\n=== REPRODUCIENDO ===" << std::endl;
-    std::cout << "Artista: " << cancionActual->getAlbum()->getArtista()->getNombre() << std::endl;
-    std::cout << "Album: " << cancionActual->getAlbum()->getNombre() << std::endl;
-    std::cout << "Portada: " << cancionActual->getAlbum()->getPortada() << std::endl;
-    std::cout << "Cancion: " << cancionActual->getNombre() << std::endl;
-    std::string rutaAudio = cancionActual->obtenerRuta(usuarioActual->esPremium());
-    std::cout << "Audio: " << rutaAudio << std::endl;
-    std::cout << "Duracion: " << cancionActual->getDuracion() << " minutos" << std::endl;
-    std::cout << "\n--- OPCIONES ---" << std::endl;
-    std::cout << "1. Detener reproduccion" << std::endl;
-    std::cout << "2. Siguiente cancion" << std::endl;
-
-    if (usuarioActual->esPremium()) {
-        std::cout << "3. Cancion anterior" << std::endl;
-        std::cout << "4. " << (modoRepetir ? "Desactivar" : "Activar") << " repetir" << std::endl;
-    }
-
-    std::cout << "0. Volver al menu principal" << std::endl;
-    std::cout << "=====================" << std::endl;
-}
-
-void Reproductor::mostrarPublicidad() {
-    if (usuarioActual->esPremium()) return;
-
-    if (contadorCancionesReproducidas % 2 == 0 && totalMensajes > 0) {
+    if (!usuarioActual->esPremium() && contadorCancionesReproducidas % 2 == 0 && totalMensajes > 0) {
         MensajePublicitario* mensaje = obtenerMensajeAleatorio();
         if (mensaje != nullptr) {
-            std::cout << "\n--- PUBLICIDAD ---" << std::endl;
-            std::cout << mensaje->getTexto() << std::endl;
-            std::cout << "Categoria: " << mensaje->getCategoria() << std::endl;
-            std::cout << "------------------" << std::endl;
-
+            std::cout << "\n\"Mensaje publicitario\" (Si aplica)" << std::endl;
+            std::cout << "Categoria del mensaje (Si aplica): " << mensaje->getCategoria() << std::endl;
+            std::cout << std::endl;
+            std::cout << "\"" << mensaje->getTexto() << "\"" << std::endl;
+            std::cout << std::endl;
             std::cout << "Publicidad en progreso..." << std::endl;
             auto start = std::chrono::steady_clock::now();
-            while (std::chrono::steady_clock::now() - start < std::chrono::seconds(2)) {
-            }
+            while (std::chrono::steady_clock::now() - start < std::chrono::seconds(2)) {}
         }
     }
+
+    std::cout << "\n";
+    std::cout << "Cantante: " << cancionActual->getAlbum()->getArtista()->getNombre() << std::endl;
+    std::cout << "Album: " << cancionActual->getAlbum()->getNombre() << std::endl;
+    std::cout << "Ruta a la portada del album: " << cancionActual->getAlbum()->getPortada() << std::endl;
+    std::cout << std::endl;
+    std::cout << "Titulo de la cancion reproducida: " << cancionActual->getNombre() << std::endl;
+    std::cout << "Ruta al archivo de audio: " << cancionActual->obtenerRuta(usuarioActual->esPremium()) << std::endl;
+    std::cout << "Duracion: " << cancionActual->getDuracion() << " minutos" << std::endl;
+    std::cout << std::endl;
+
+    std::cout << "Opciones de reproduccion:" << std::endl;
+    std::cout << "1.- Reproducir  2.- Detener";
+
+    if (usuarioActual->esPremium()) {
+        std::cout << "  3.- Siguiente  4.- Anterior  5.- " << (modoRepetir ? "Desactivar" : "Activar") << " repetir";
+    }
+
+    std::cout << std::endl;
+    std::cout << "*Todas las opciones que apliquen" << std::endl;
+    std::cout << "Seleccione una opcion: ";
 }
 
 MensajePublicitario* Reproductor::obtenerMensajeAleatorio() {
@@ -115,19 +111,76 @@ void Reproductor::reproducirAleatorio() {
 
         cancionActual->incrementarReproducciones();
         contadorCancionesReproducidas++;
+
+        // MOSTRAR INTERFAZ MEJORADA
         mostrarInterfazReproduccion();
-        mostrarPublicidad();
 
-        std::cout << "Reproduciendo..." << std::endl;
+        // ESPERAR SELECCIÓN DEL USUARIO
+        int opcion;
+        std::cin >> opcion;
 
-        auto start = std::chrono::steady_clock::now();
-        while (std::chrono::steady_clock::now() - start < std::chrono::seconds(3)) {
+        switch (opcion) {
+        case 1: // Reproducir
+            std::cout << "Reproduciendo..." << std::endl;
+            // Simular reproducción por 3 segundos
+            {
+                auto start = std::chrono::steady_clock::now();
+                while (std::chrono::steady_clock::now() - start < std::chrono::seconds(3)) {}
+            }
+            std::cout << "Cancion finalizada." << std::endl;
+            break;
+
+        case 2: // Detener
+            reproduciendo = false;
+            std::cout << "Reproduccion detenida." << std::endl;
+            break;
+
+        case 3: // Siguiente (solo premium)
+            if (usuarioActual->esPremium()) {
+                std::cout << "Saltando a siguiente cancion..." << std::endl;
+                // No incrementar i para que avance en el próximo ciclo
+                i--;
+                siguienteCancion();
+            } else {
+                std::cout << "Opcion no disponible para usuarios estandar." << std::endl;
+                i--; // Permite volver a mostrar la interfaz
+            }
+            break;
+
+        case 4: // Anterior (solo premium)
+            if (usuarioActual->esPremium()) {
+                cancionAnterior();
+                // Ajustar contador para repetir esta canción
+                i--;
+            } else {
+                std::cout << "Opcion no disponible para usuarios estandar." << std::endl;
+                i--; // Permite volver a mostrar la interfaz
+            }
+            break;
+
+        case 5: // Repetir (solo premium)
+            if (usuarioActual->esPremium()) {
+                toggleRepetir();
+                i--; // Repetir esta canción
+            } else {
+                std::cout << "Opcion no disponible para usuarios estandar." << std::endl;
+                i--; // Permite volver a mostrar la interfaz
+            }
+            break;
+
+        default:
+            std::cout << "Opcion no valida. Reproduciendo automaticamente..." << std::endl;
+            // Reproducción automática por 3 segundos
+            {
+                auto start = std::chrono::steady_clock::now();
+                while (std::chrono::steady_clock::now() - start < std::chrono::seconds(3)) {}
+            }
+            std::cout << "Cancion finalizada." << std::endl;
+            break;
         }
 
-        std::cout << "Cancion finalizada." << std::endl;
-
-        if (modoRepetir) {
-            i--;
+        if (modoRepetir && reproduciendo) {
+            i--; // Repetir la misma canción
             std::cout << "Modo repetir activado - repitiendo cancion..." << std::endl;
         }
     }
@@ -147,7 +200,6 @@ void Reproductor::siguienteCancion() {
     contadorCancionesReproducidas++;
 
     mostrarInterfazReproduccion();
-    mostrarPublicidad();
 }
 
 void Reproductor::cancionAnterior() {
