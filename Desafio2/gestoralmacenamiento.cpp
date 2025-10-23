@@ -35,17 +35,6 @@ void GestorAlmacenamiento::redimensionarMensajes() {
     capacidad = nuevaCapacidad;
 }
 
-bool GestorAlmacenamiento::agregarMensaje(MensajePublicitario* mensaje) {
-    if (mensaje == nullptr) return false;
-
-    if (totalMensajes >= capacidad) {
-        redimensionarMensajes();
-    }
-
-    mensajes[totalMensajes++] = mensaje;
-    return true;
-}
-
 void GestorAlmacenamiento::cargarTodo() {
     std::cout << "=== CARGANDO DATOS DEL SISTEMA ===" << std::endl;
 
@@ -88,7 +77,10 @@ void GestorAlmacenamiento::cargarMensajes() {
         char categoria = linea[pos + 1];
 
         MensajePublicitario* nuevoMensaje = new MensajePublicitario(texto, categoria);
-        agregarMensaje(nuevoMensaje);
+        if (totalMensajes >= capacidad) {
+            redimensionarMensajes();
+        }
+        mensajes[totalMensajes++] = nuevoMensaje;
     }
 
     archivo.close();

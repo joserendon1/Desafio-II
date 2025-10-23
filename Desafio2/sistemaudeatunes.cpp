@@ -166,10 +166,6 @@ bool SistemaUdeATunes::agregarCancion(Cancion* cancion) {
     return gestorCatalogo->agregarCancion(cancion);
 }
 
-bool SistemaUdeATunes::agregarMensaje(MensajePublicitario* mensaje) {
-    return gestorAlmacenamiento->agregarMensaje(mensaje);
-}
-
 void SistemaUdeATunes::calcularMemoria() const {
     memoriaConsumida = 0;
 
@@ -235,41 +231,4 @@ void SistemaUdeATunes::dejarDeSeguirLista() {
     }
 
     usuarioActual->getListaFavoritos()->dejarDeSeguirLista();
-}
-
-void SistemaUdeATunes::combinarListaSeguida() {
-    if (usuarioActual == nullptr || !usuarioActual->esPremium()) {
-        std::cout << "Solo usuarios premium pueden seguir listas." << std::endl;
-        return;
-    }
-
-    if (usuarioActual->getListaFavoritos() == nullptr) {
-        std::cout << "No tienes lista de favoritos." << std::endl;
-        return;
-    }
-
-    usuarioActual->getListaFavoritos()->combinarConListaSeguida();
-}
-
-void SistemaUdeATunes::mostrarInfoListaSeguida() const {
-    if (usuarioActual == nullptr || !usuarioActual->esPremium()) {
-        std::cout << "Solo usuarios premium pueden seguir listas." << std::endl;
-        return;
-    }
-
-    if (usuarioActual->getListaFavoritos() == nullptr) {
-        std::cout << "No tienes lista de favoritos." << std::endl;
-        return;
-    }
-
-    ListaFavoritos* listaSeguida = usuarioActual->getListaFavoritos()->getListaSeguida();
-    if (listaSeguida == nullptr) {
-        std::cout << "No estas siguiendo ninguna lista." << std::endl;
-        return;
-    }
-
-    std::cout << "\nLista que estas siguiendo:" << std::endl;
-    std::cout << "Usuario: " << listaSeguida->getUsuario()->getNickname() << std::endl;
-    std::cout << "Canciones en su lista: " << listaSeguida->getTotalCanciones() << std::endl;
-    std::cout << "Membresia: " << listaSeguida->getUsuario()->getMembresia() << std::endl;
 }

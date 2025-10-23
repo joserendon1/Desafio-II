@@ -2,7 +2,6 @@
 #define CANCION_H
 
 #include <string>
-#include "Creditos.h"
 
 class Album;
 
@@ -15,7 +14,6 @@ private:
     std::string ruta320;
     int reproducciones;
     Album* album;
-    Creditos* creditos;
 
 public:
     Cancion();
@@ -33,7 +31,6 @@ public:
     float getDuracion() const { return duracion; }
     int getReproducciones() const { return reproducciones; }
     Album* getAlbum() const { return album; }
-    Creditos* getCreditos() const { return creditos; }
 
     void setId(int id) { this->id = id; }
     void setNombre(const std::string& nombre) { this->nombre = nombre; }

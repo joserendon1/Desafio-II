@@ -25,7 +25,6 @@ public:
     void reproducir(bool ordenAleatorio) const;
     void seguirLista(ListaFavoritos* otraLista);
     void dejarDeSeguirLista();
-    void combinarConListaSeguida();
     void mostrarLista() const;
 
     ListaFavoritos* getListaSeguida() const { return listaSeguida; }

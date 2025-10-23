@@ -26,7 +26,6 @@ public:
     void cargarTodo();
     void guardarTodo() const;
 
-    bool agregarMensaje(MensajePublicitario* mensaje);
     MensajePublicitario** getMensajes() const { return mensajes; }
     int getTotalMensajes() const { return totalMensajes; }
 

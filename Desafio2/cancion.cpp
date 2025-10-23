@@ -4,18 +4,15 @@
 
 Cancion::Cancion()
     : id(0), nombre(""), duracion(0.0f), ruta128(""), ruta320(""),
-    reproducciones(0), album(nullptr), creditos(nullptr) {
+    reproducciones(0), album(nullptr){
 }
 
 Cancion::Cancion(int id, const std::string& nombre, Album* album)
     : id(id), nombre(nombre), duracion(0.0f), ruta128(""), ruta320(""),
-    reproducciones(0), album(album), creditos(nullptr) {
+    reproducciones(0), album(album){
 }
 
 Cancion::~Cancion() {
-    if (creditos != nullptr) {
-        delete creditos;
-    }
 }
 
 bool Cancion::operator==(const Cancion& otra) const {

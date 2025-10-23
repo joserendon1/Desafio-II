@@ -22,7 +22,6 @@ public:
     bool operator==(const Usuario& otro) const;
 
     bool esPremium() const;
-    void cambiarMembresia(const std::string& nuevaMembresia);
 
     std::string getNickname() const { return nickname; }
     std::string getMembresia() const { return membresia; }

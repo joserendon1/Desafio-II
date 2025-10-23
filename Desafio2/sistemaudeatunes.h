@@ -40,7 +40,6 @@ public:
     bool agregarArtista(Artista* artista);
     bool agregarAlbum(Album* album);
     bool agregarCancion(Cancion* cancion);
-    bool agregarMensaje(MensajePublicitario* mensaje);
 
     Usuario* getUsuarioActual() const { return usuarioActual; }
     int getTotalUsuarios() const { return gestorUsuarios->getTotalUsuarios(); }
@@ -57,8 +56,6 @@ public:
 
     bool seguirListaUsuario(const std::string& nicknameSeguido);
     void dejarDeSeguirLista();
-    void combinarListaSeguida();
-    void mostrarInfoListaSeguida() const;
 
     void incrementarIteraciones(int cantidad = 1) const;
     void calcularMemoria() const;

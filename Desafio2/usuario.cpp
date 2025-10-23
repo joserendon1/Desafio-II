@@ -28,14 +28,3 @@ bool Usuario::operator==(const Usuario& otro) const {
 bool Usuario::esPremium() const {
     return membresia == "premium";  // <- SIN TILDE
 }
-
-void Usuario::cambiarMembresia(const std::string& nuevaMembresia) {
-    membresia = nuevaMembresia;
-
-    if (membresia == "premium" && listaFavoritos == nullptr) {
-        listaFavoritos = new ListaFavoritos(this);
-    } else if (membresia != "premium" && listaFavoritos != nullptr) {
-        delete listaFavoritos;
-        listaFavoritos = nullptr;
-    }
-}

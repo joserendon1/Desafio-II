@@ -138,26 +138,6 @@ void ListaFavoritos::dejarDeSeguirLista() {
     listaSeguida = nullptr;
 }
 
-void ListaFavoritos::combinarConListaSeguida() {
-    if (listaSeguida == nullptr) {
-        std::cout << "No estas siguiendo ninguna lista." << std::endl;
-        return;
-    }
-
-    Cancion** cancionesSeguida = listaSeguida->getCanciones();
-    int totalSeguida = listaSeguida->getTotalCanciones();
-    int cancionesAgregadas = 0;
-
-    for (int i = 0; i < totalSeguida; i++) {
-        if (agregarCancion(cancionesSeguida[i])) {
-            cancionesAgregadas++;
-        }
-    }
-
-    std::cout << "Se agregaron " << cancionesAgregadas << " canciones de la lista de "
-              << listaSeguida->getUsuario()->getNickname() << " a tu lista." << std::endl;
-}
-
 void ListaFavoritos::mostrarLista() const {
     if (totalCanciones == 0) {
         std::cout << "Tu lista de favoritos esta vacia." << std::endl;

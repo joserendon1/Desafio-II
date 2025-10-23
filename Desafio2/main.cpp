@@ -28,12 +28,9 @@ void mostrarMenuUsuario(SistemaUdeATunes& sistema) {
     if (sistema.getUsuarioActual()->esPremium()) {
         std::cout << "3. Gestionar lista de favoritos" << std::endl;
         std::cout << "4. Seguir lista de otro usuario" << std::endl;
-        std::cout << "5. Informacion de lista seguida" << std::endl;
-        std::cout << "6. Combinar lista seguida con mi lista" << std::endl;
-        std::cout << "7. Dejar de seguir lista" << std::endl;
     }
 
-    std::cout << "0. Cerrar sesion" << std::endl;  // Cambié a 0 para evitar conflicto
+    std::cout << "0. Cerrar sesion" << std::endl;
     std::cout << "Seleccione una opcion: ";
 }
 
@@ -161,27 +158,6 @@ int main() {
                         std::cout << "Operacion completada. Presione Enter para continuar...";
                         std::cin.get();
                     }
-                } else {
-                    std::cout << "Opcion no valida." << std::endl;
-                }
-                break;
-            case 5:
-                if (sistema.getUsuarioActual()->esPremium()) {
-                    sistema.mostrarInfoListaSeguida();
-                } else {
-                    std::cout << "Opcion no valida." << std::endl;
-                }
-                break;
-            case 6:
-                if (sistema.getUsuarioActual()->esPremium()) {
-                    sistema.combinarListaSeguida();
-                } else {
-                    std::cout << "Opcion no valida." << std::endl;
-                }
-                break;
-            case 7:
-                if (sistema.getUsuarioActual()->esPremium()) {
-                    sistema.dejarDeSeguirLista();
                 } else {
                     std::cout << "Opcion no valida." << std::endl;
                 }
