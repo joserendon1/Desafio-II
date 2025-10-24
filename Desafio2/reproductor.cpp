@@ -8,11 +8,18 @@
 #include <chrono>
 
 Reproductor::Reproductor(Cancion** canciones, int totalCanc, MensajePublicitario** mensajes, int totalMsg, Usuario* usuario)
-    : todasLasCanciones(canciones), todosLosMensajes(mensajes), totalCanciones(totalCanc),
-    totalMensajes(totalMsg), usuarioActual(usuario), cancionActual(nullptr),
-    indiceActual(-1), reproduciendo(false), modoRepetir(false), indiceHistorial(0),
-    contadorCancionesReproducidas(0) {
-
+    : todasLasCanciones(canciones),
+    todosLosMensajes(mensajes),
+    totalCanciones(totalCanc),
+    totalMensajes(totalMsg),
+    usuarioActual(usuario),
+    cancionActual(nullptr),
+    indiceActual(-1),
+    reproduciendo(false),
+    modoRepetir(false),
+    indiceHistorial(0),
+    contadorCancionesReproducidas(0)
+{
     for (int i = 0; i < 4; i++) {
         historial[i] = nullptr;
     }
@@ -34,45 +41,42 @@ void Reproductor::mostrarInterfazReproduccion() {
     if (!usuarioActual->esPremium() && contadorCancionesReproducidas % 2 == 0 && contadorCancionesReproducidas > 0) {
         MensajePublicitario* mensaje = obtenerMensajeAleatorio();
         if (mensaje != nullptr) {
-            std::cout << "\n--- MENSAJE PUBLICITARIO ---" << std::endl;
-            std::cout << "Categoria: ";
+            std::cout << "\n==========================================" << std::endl;
+            std::cout << "\"Mensaje publicitario\"" << std::endl;
+            std::cout << "Categoria del mensaje: ";
 
             if (mensaje->categoria == 'A') {
                 std::cout << "AAA";
-            } else if (mensaje->categoria == 'B') {
-                std::cout << "B";
             } else {
-                std::cout << "C";
+                std::cout << mensaje->categoria;
             }
-            std::cout << " (Prioridad: " << mensaje->prioridad << "x)" << std::endl;
-
-            std::cout << "\"" << mensaje->texto << "\"" << std::endl;
-            std::cout << "Mostrando publicidad..." << std::endl;
+            std::cout << std::endl;
+            std::cout << "==========================================" << std::endl;
 
             auto start = std::chrono::steady_clock::now();
             while (std::chrono::steady_clock::now() - start < std::chrono::seconds(2)) {}
-
-            std::cout << "--- FIN PUBLICIDAD ---" << std::endl;
         }
     }
 
-    std::cout << "\n--- REPRODUCIENDO ---" << std::endl;
-    std::cout << "Artista: " << cancionActual->getAlbum()->artista->nombre << std::endl;
+    std::cout << "\n==========================================" << std::endl;
+    std::cout << "Cantante: " << cancionActual->getAlbum()->artista->nombre << std::endl;
     std::cout << "Album: " << cancionActual->getAlbum()->nombre << std::endl;
-    std::cout << "Portada: " << cancionActual->getAlbum()->portada << std::endl;
-    std::cout << "Cancion: " << cancionActual->getNombre() << std::endl;
-    std::cout << "Audio: " << cancionActual->obtenerRuta(usuarioActual->esPremium()) << std::endl;
+    std::cout << "Ruta a la portada del album: " << cancionActual->getAlbum()->portada << std::endl;
+    std::cout << "------------------------------------------" << std::endl;
+    std::cout << "Titulo de la cancion reproducida: " << cancionActual->getNombre() << std::endl;
+    std::cout << "Ruta al archivo de audio: " << cancionActual->obtenerRuta(usuarioActual->esPremium()) << std::endl;
     std::cout << "Duracion: " << cancionActual->getDuracion() << " minutos" << std::endl;
-    std::cout << "---------------------" << std::endl;
+    std::cout << "------------------------------------------" << std::endl;
 
-    std::cout << "Opciones:" << std::endl;
-    std::cout << "1. Reproducir  2. Detener";
+    std::cout << "Opciones de reproduccion:" << std::endl;
+    std::cout << "1.- Reproducir  2.- Detener";
 
     if (usuarioActual->esPremium()) {
-        std::cout << "  3. Siguiente  4. Anterior  5. " << (modoRepetir ? "Desactivar" : "Activar") << " repetir";
+        std::cout << "  3.- Siguiente  4.- Anterior  5.- " << (modoRepetir ? "Desactivar" : "Activar") << " repetir";
     }
 
     std::cout << std::endl;
+    std::cout << "==========================================" << std::endl;
     std::cout << "Seleccione una opcion: ";
 }
 
@@ -109,9 +113,33 @@ MensajePublicitario* Reproductor::obtenerMensajeAleatorio() {
     return todosLosMensajes[mensajeIndex];
 }
 
+void Reproductor::actualizarDatos(Cancion** canciones, int totalCanc, MensajePublicitario** mensajes, int totalMsg, Usuario* usuario) {
+    this->todasLasCanciones = canciones;
+    this->totalCanciones = totalCanc;
+    this->todosLosMensajes = mensajes;
+    this->totalMensajes = totalMsg;
+    this->usuarioActual = usuario;
+
+    this->cancionActual = nullptr;
+    this->indiceActual = -1;
+    this->reproduciendo = false;
+    this->modoRepetir = false;
+    this->indiceHistorial = 0;
+    this->contadorCancionesReproducidas = 0;
+
+    for (int i = 0; i < 4; i++) {
+        this->historial[i] = nullptr;
+    }
+}
+
 void Reproductor::reproducirAleatorio() {
     if (totalCanciones == 0) {
         std::cout << "No hay canciones disponibles para reproducir." << std::endl;
+        return;
+    }
+
+    if (todasLasCanciones == nullptr) {
+        std::cout << "ERROR: Array de canciones es nulo" << std::endl;
         return;
     }
 
@@ -124,7 +152,32 @@ void Reproductor::reproducirAleatorio() {
 
     for (int i = 0; i < LIMITE_CANCIONES_PRUEBA && reproduciendo; i++) {
         indiceActual = generarNumeroAleatorio(totalCanciones);
+
+        if (indiceActual < 0 || indiceActual >= totalCanciones) {
+            std::cout << "ERROR: Indice de cancion invalido: " << indiceActual << std::endl;
+            reproduciendo = false;
+            break;
+        }
+
         cancionActual = todasLasCanciones[indiceActual];
+
+        if (cancionActual == nullptr) {
+            std::cout << "ERROR: Cancion actual es nula en indice " << indiceActual << std::endl;
+            reproduciendo = false;
+            break;
+        }
+
+        if (cancionActual->getAlbum() == nullptr) {
+            std::cout << "ERROR: Cancion sin album: " << cancionActual->getNombre() << std::endl;
+            reproduciendo = false;
+            break;
+        }
+
+        if (cancionActual->getAlbum()->artista == nullptr) {
+            std::cout << "ERROR: Album sin artista: " << cancionActual->getAlbum()->nombre << std::endl;
+            reproduciendo = false;
+            break;
+        }
 
         if (usuarioActual->esPremium()) {
             historial[indiceHistorial % 4] = cancionActual;
@@ -138,6 +191,14 @@ void Reproductor::reproducirAleatorio() {
 
         int opcion;
         std::cin >> opcion;
+
+        if (std::cin.fail()) {
+            std::cin.clear();
+            char c;
+            while (std::cin.get(c) && c != '\n') {}
+            std::cout << "Entrada invalida. Continuando..." << std::endl;
+            opcion = 1;
+        }
 
         switch (opcion) {
         case 1:
@@ -159,6 +220,7 @@ void Reproductor::reproducirAleatorio() {
                 i--;
             }
             break;
+
         case 3:
             if (usuarioActual->esPremium()) {
                 if (reproduciendo) {
@@ -172,11 +234,11 @@ void Reproductor::reproducirAleatorio() {
                 i--;
             }
             break;
+
         case 4:
             if (usuarioActual->esPremium()) {
                 if (reproduciendo && indiceHistorial > 1) {
                     cancionAnterior();
-
                     contadorCancionesReproducidas--;
                     i--;
                 } else {
@@ -188,6 +250,7 @@ void Reproductor::reproducirAleatorio() {
                 i--;
             }
             break;
+
         case 5:
             if (usuarioActual->esPremium()) {
                 if (reproduciendo) {
@@ -206,15 +269,12 @@ void Reproductor::reproducirAleatorio() {
         default:
             std::cout << "Opcion no valida. Reproduciendo automaticamente..." << std::endl;
             {
-
                 auto start = std::chrono::steady_clock::now();
                 while (std::chrono::steady_clock::now() - start < std::chrono::seconds(3)) {}
             }
             std::cout << "Cancion finalizada." << std::endl;
             break;
         }
-
-
         if (modoRepetir && reproduciendo) {
             i--;
             std::cout << "Modo repetir activado - repitiendo cancion..." << std::endl;
@@ -231,7 +291,16 @@ void Reproductor::reproducirAleatorio() {
 void Reproductor::siguienteCancion() {
     if (!reproduciendo || totalCanciones == 0) return;
 
-    avanzarCancion();
+    if (!modoRepetir) {
+        indiceActual = (indiceActual + 1) % totalCanciones;
+        cancionActual = todasLasCanciones[indiceActual];
+
+        if (usuarioActual->esPremium()) {
+            historial[indiceHistorial % 4] = cancionActual;
+            indiceHistorial++;
+        }
+    }
+
     cancionActual->incrementarReproducciones();
     contadorCancionesReproducidas++;
 
@@ -251,28 +320,6 @@ void Reproductor::cancionAnterior() {
         }
     } else {
         std::cout << "No hay canciones anteriores en el historial." << std::endl;
-    }
-}
-
-void Reproductor::avanzarCancion() {
-    if (modoRepetir) return;
-
-    indiceActual = (indiceActual + 1) % totalCanciones;
-    cancionActual = todasLasCanciones[indiceActual];
-
-    if (usuarioActual->esPremium()) {
-        historial[indiceHistorial % 4] = cancionActual;
-        indiceHistorial++;
-    }
-}
-
-void Reproductor::retrocederCancion() {
-    if (indiceHistorial > 0) {
-        indiceHistorial--;
-        int historialIndex = (indiceHistorial - 1) % 4;
-        if (historial[historialIndex] != nullptr) {
-            cancionActual = historial[historialIndex];
-        }
     }
 }
 

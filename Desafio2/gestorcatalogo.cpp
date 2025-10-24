@@ -164,36 +164,6 @@ Cancion* GestorCatalogo::buscarCancion(int id) const {
     return nullptr;
 }
 
-Artista** GestorCatalogo::getArtistasArray() const {
-    if (totalArtistas == 0) return nullptr;
-
-    Artista** array = new Artista*[totalArtistas];
-    ContenedorArtista* actual = inicioArtistas;
-    int index = 0;
-
-    while (actual != nullptr) {
-        array[index++] = actual->contenido;
-        actual = actual->siguiente;
-    }
-
-    return array;
-}
-
-Album** GestorCatalogo::getAlbumesArray() const {
-    if (totalAlbumes == 0) return nullptr;
-
-    Album** array = new Album*[totalAlbumes];
-    ContenedorAlbum* actual = inicioAlbumes;
-    int index = 0;
-
-    while (actual != nullptr) {
-        array[index++] = actual->contenido;
-        actual = actual->siguiente;
-    }
-
-    return array;
-}
-
 Cancion** GestorCatalogo::getCancionesArray() const {
     if (totalCanciones == 0) return nullptr;
 
@@ -217,18 +187,40 @@ void GestorCatalogo::cargarArtistas() {
     }
 
     std::string linea;
+    int lineNumber = 0;
+    int artistasCargados = 0;
+
     while (std::getline(archivo, linea)) {
+        lineNumber++;
         if (linea.empty()) continue;
 
         std::stringstream ss(linea);
         std::string idStr, nombre;
 
-        std::getline(ss, idStr, '|');
-        std::getline(ss, nombre, '|');
+        if (std::getline(ss, idStr, '|') && std::getline(ss, nombre, '|')) {
 
-        int id = std::stoi(idStr);
-        Artista* nuevoArtista = new Artista(id, nombre);
-        agregarArtista(nuevoArtista);
+            idStr.erase(0, idStr.find_first_not_of(" \t\n\r\f\v"));
+            idStr.erase(idStr.find_last_not_of(" \t\n\r\f\v") + 1);
+            nombre.erase(0, nombre.find_first_not_of(" \t\n\r\f\v"));
+            nombre.erase(nombre.find_last_not_of(" \t\n\r\f\v") + 1);
+
+            try {
+                int id = std::stoi(idStr);
+                Artista* nuevoArtista = new Artista(id, nombre);
+
+                if (agregarArtista(nuevoArtista)) {
+                    artistasCargados++;
+                } else {
+                    delete nuevoArtista;
+                }
+
+            } catch (const std::exception& e) {
+                std::cout << "ERROR linea " << lineNumber << ": " << e.what() << std::endl;
+                continue;
+            }
+        } else {
+            std::cout << "ERROR linea " << lineNumber << ": Formato incorrecto" << std::endl;
+        }
     }
 
     archivo.close();
@@ -237,35 +229,94 @@ void GestorCatalogo::cargarArtistas() {
 void GestorCatalogo::cargarAlbumes() {
     std::ifstream archivo("datos/albumes.txt");
     if (!archivo.is_open()) {
-        std::cout << "No se pudo abrir el archivo de álbumes." << std::endl;
+        std::cout << "No se pudo abrir el archivo de albumes." << std::endl;
         return;
     }
 
     std::string linea;
+    int lineNumber = 0;
+    int albumesCargados = 0;
+    int albumesConErrores = 0;
+
     while (std::getline(archivo, linea)) {
+        lineNumber++;
         if (linea.empty()) continue;
 
+        int totalCampos = 0;
+        for (char c : linea) {
+            if (c == '|') totalCampos++;
+        }
+        totalCampos++;
+
+        if (totalCampos < 7) {
+            std::cout << "❌ ERROR linea " << lineNumber << ": Album necesita al menos 7 campos, tiene " << totalCampos << std::endl;
+            albumesConErrores++;
+            continue;
+        }
+
         std::stringstream ss(linea);
+        std::string campo;
         std::string idStr, nombre, portada;
 
-        std::getline(ss, idStr, '|');
-        std::getline(ss, nombre, '|');
-        std::getline(ss, portada, '|');
+        if (!std::getline(ss, idStr, '|')) {
+            albumesConErrores++;
+            continue;
+        }
 
-        int id = std::stoi(idStr);
-        int artistaId = id / 100;
-        Artista* artista = buscarArtista(artistaId);
+        if (!std::getline(ss, nombre, '|')) {
+            albumesConErrores++;
+            continue;
+        }
 
-        if (artista != nullptr) {
-            Album* nuevoAlbum = new Album(id, nombre, artista);
-            nuevoAlbum->portada = portada;
-            agregarAlbum(nuevoAlbum);
-        } else {
-            std::cout << "Artista no encontrado para álbum ID: " << id << std::endl;
+        for (int i = 0; i < 4; i++) {
+            if (!std::getline(ss, campo, '|')) {
+                albumesConErrores++;
+                continue;
+            }
+        }
+
+        if (!std::getline(ss, portada, '|')) {
+            albumesConErrores++;
+            continue;
+        }
+
+        idStr.erase(0, idStr.find_first_not_of(" \t\n\r\f\v"));
+        idStr.erase(idStr.find_last_not_of(" \t\n\r\f\v") + 1);
+        nombre.erase(0, nombre.find_first_not_of(" \t\n\r\f\v"));
+        nombre.erase(nombre.find_last_not_of(" \t\n\r\f\v") + 1);
+        portada.erase(0, portada.find_first_not_of(" \t\n\r\f\v"));
+        portada.erase(portada.find_last_not_of(" \t\n\r\f\v") + 1);
+
+        try {
+
+            int id = std::stoi(idStr);
+            int artistaId = id / 100;
+            Artista* artista = buscarArtista(artistaId);
+
+            if (artista != nullptr) {
+                Album* nuevoAlbum = new Album(id, nombre, artista);
+                nuevoAlbum->portada = portada;
+
+                if (agregarAlbum(nuevoAlbum)) {
+                    albumesCargados++;
+                } else {
+                    delete nuevoAlbum;
+                    albumesConErrores++;
+                }
+            } else {
+                std::cout << "ERROR linea " << lineNumber << ": Artista no encontrado para album ID: " << id << std::endl;
+                albumesConErrores++;
+            }
+
+        } catch (const std::exception& e) {
+            std::cout << "ERROR linea " << lineNumber << ": " << e.what() << std::endl;
+            albumesConErrores++;
+            continue;
         }
     }
 
     archivo.close();
+
 }
 
 void GestorCatalogo::cargarCanciones() {
@@ -292,7 +343,7 @@ void GestorCatalogo::cargarCanciones() {
         int id = std::stoi(idStr);
 
         if (idStr.length() != 9) {
-            std::cout << "ID de canción con formato incorrecto: " << idStr << std::endl;
+            std::cout << "ERROR: ID de canción debe tener 9 dígitos: " << idStr << std::endl;
             continue;
         }
 
@@ -300,8 +351,22 @@ void GestorCatalogo::cargarCanciones() {
         int albumId = (id % 10000) / 100;
         int cancionId = id % 100;
 
-        // CALCULAR EL ID COMPLETO DEL ÁLBUM (artistaId + albumId)
-        int albumIdCompleto = artistaId * 100 + albumId;  // <- ESTA LÍNEA FALTABA
+        int albumIdCompleto = artistaId * 100 + albumId;
+
+        auto validarRutaLinux = [](const std::string& ruta) -> bool {
+            if (ruta.empty()) return false;
+
+            if (ruta[0] != '/') {
+                std::cout << "ADVERTENCIA: Ruta no es absoluta: " << ruta << std::endl;
+                return false;
+            }
+
+            return true;
+        };
+
+        if (!validarRutaLinux(ruta128) || !validarRutaLinux(ruta320)) {
+            std::cout << "ADVERTENCIA: Rutas con formato incorrecto para canción ID: " << id << std::endl;
+        }
 
         Album* album = buscarAlbum(albumIdCompleto);
 
@@ -317,8 +382,10 @@ void GestorCatalogo::cargarCanciones() {
             }
 
             agregarCancion(nuevaCancion);
+
         } else {
-            std::cout << "Álbum no encontrado para canción ID: " << id << std::endl;
+            std::cout << "ERROR: Álbum no encontrado para canción ID: " << id
+                      << " (Artista: " << artistaId << ", Álbum: " << albumIdCompleto << ")" << std::endl;
         }
     }
 

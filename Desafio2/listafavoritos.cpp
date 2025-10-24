@@ -155,28 +155,6 @@ int ListaFavoritos::getTotalCancionesVisibles() const {
     return total;
 }
 
-Cancion* ListaFavoritos::obtenerCancion(int index) const {
-    resetIteraciones();
-
-    if (index < 0 || index >= totalCanciones) {
-        incrementarIteraciones();
-        return nullptr;
-    }
-
-    ContenedorCancionFavorita* actual = inicio;
-    int contador = 0;
-    int iteracionesLocales = 0;
-
-    while (actual != nullptr && contador < index) {
-        iteracionesLocales++;
-        actual = actual->siguiente;
-        contador++;
-    }
-
-    incrementarIteraciones(iteracionesLocales + 1);
-    return (actual != nullptr) ? actual->contenido : nullptr;
-}
-
 void ListaFavoritos::reproducir(bool ordenAleatorio) const {
     int totalVisibles = getTotalCancionesVisibles();
     const int MAX_REGRESAR = 6;

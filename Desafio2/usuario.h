@@ -21,8 +21,6 @@ public:
     std::string getNickname() const { return nickname; }
     std::string getMembresia() const { return membresia; }
     ListaFavoritos* getListaFavoritos() const { return listaFavoritos; }
-
-    void setNickname(const std::string& nickname) { this->nickname = nickname; }
 };
 
 #endif

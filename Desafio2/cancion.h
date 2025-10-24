@@ -22,7 +22,6 @@ public:
 
     bool operator==(const Cancion& otra) const;
 
-    void reproducir();
     std::string obtenerRuta(bool altaCalidad) const;
     void incrementarReproducciones() { reproducciones++; }
 
@@ -32,12 +31,10 @@ public:
     int getReproducciones() const { return reproducciones; }
     Album* getAlbum() const { return album; }
 
-    void setId(int id) { this->id = id; }
-    void setNombre(const std::string& nombre) { this->nombre = nombre; }
     void setDuracion(float duracion) { this->duracion = duracion; }
     void setRuta128(const std::string& ruta) { ruta128 = ruta; }
     void setRuta320(const std::string& ruta) { ruta320 = ruta; }
-    void setAlbum(Album* album) { this->album = album; }
+
 };
 
 #endif

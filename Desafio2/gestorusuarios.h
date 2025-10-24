@@ -24,15 +24,16 @@ public:
     Usuario* buscarUsuario(const std::string& nickname) const;
     bool agregarUsuario(Usuario* usuario);
     void cargarUsuarios();
+    void limpiarUsuarios();
 
     int getTotalUsuarios() const { return totalUsuarios; }
     Usuario** getUsuariosArray() const;
-    unsigned long getIteraciones() const { return iteraciones; }
 
+    unsigned long getIteraciones() const { return iteraciones; }
     void incrementarIteraciones(int cantidad = 1) const { iteraciones += cantidad; }
     void resetIteraciones() const { iteraciones = 0; }
-    void limpiarUsuarios();
     unsigned long calcularMemoriaUsuarios() const;
+
 };
 
 #endif

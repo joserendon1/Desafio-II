@@ -18,6 +18,9 @@ private:
     ListaFavoritos* listaSeguida;
     mutable unsigned long iteraciones;
 
+    int getTotalCancionesSeguidas() const;
+    int getTotalCancionesVisibles() const;
+
 public:
     ListaFavoritos(Usuario* usuario);
     ~ListaFavoritos();
@@ -32,21 +35,15 @@ public:
     void mostrarLista() const;
 
     int getTotalCanciones() const { return totalCanciones; }
-    int getTotalCancionesSeguidas() const;
-    int getTotalCancionesVisibles() const;
-    Cancion* obtenerCancion(int index) const;
-
-    ListaFavoritos* getListaSeguida() const { return listaSeguida; }
-    bool estaSiguiendoLista() const { return listaSeguida != nullptr; }
-
     Usuario* getUsuario() const { return usuario; }
     Cancion** getCancionesArray() const;
-    ContenedorCancionFavorita* getInicio() const { return inicio; }
+    bool estaSiguiendoLista() const { return listaSeguida != nullptr; }
 
     unsigned long getIteraciones() const { return iteraciones; }
     void resetIteraciones() const { iteraciones = 0; }
     void incrementarIteraciones(int cantidad = 1) const { iteraciones += cantidad; }
     unsigned long calcularMemoria() const;
+
 };
 
 #endif

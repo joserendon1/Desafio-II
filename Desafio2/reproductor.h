@@ -26,14 +26,15 @@ private:
     std::mt19937 generadorAleatorio;
 
     void mostrarInterfazReproduccion();
-    void mostrarPublicidad();
-    void avanzarCancion();
-    void retrocederCancion();
     MensajePublicitario* obtenerMensajeAleatorio();
     int generarNumeroAleatorio(int maximo);
 
 public:
     Reproductor(Cancion** canciones, int totalCanc, MensajePublicitario** mensajes, int totalMsg, Usuario* usuario);
+
+    void actualizarDatos(Cancion** canciones, int totalCanc,
+                         MensajePublicitario** mensajes, int totalMsg,
+                         Usuario* usuario);
 
     void reproducirAleatorio();
     void siguienteCancion();

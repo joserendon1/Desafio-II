@@ -29,6 +29,7 @@ SistemaUdeATunes::~SistemaUdeATunes() {
 
     if (reproductor != nullptr) {
         delete reproductor;
+        reproductor = nullptr;
     }
 
     limpiarMensajes();
@@ -132,7 +133,6 @@ bool SistemaUdeATunes::login() {
 }
 
 void SistemaUdeATunes::reproducirAleatorio() {
-    // Resetear contadores antes de comenzar
     resetIteraciones();
 
     if (gestorCatalogo->getTotalCanciones() == 0) {
@@ -145,38 +145,43 @@ void SistemaUdeATunes::reproducirAleatorio() {
         return;
     }
 
-    // Las siguientes operaciones incrementarán iteraciones automáticamente
     Cancion** cancionesArray = gestorCatalogo->getCancionesArray();
     MensajePublicitario** mensajesArray = getMensajesArray();
 
-    Reproductor* nuevoReproductor = new Reproductor(
-        cancionesArray,
-        gestorCatalogo->getTotalCanciones(),
-        mensajesArray,
-        totalMensajes,
-        usuarioActual
-        );
+    if (cancionesArray == nullptr) {
+        std::cout << "ERROR: No se pudieron cargar las canciones" << std::endl;
+        if (mensajesArray != nullptr) delete[] mensajesArray;
+        return;
+    }
+
+    if (reproductor == nullptr) {
+        reproductor = new Reproductor(
+            cancionesArray,
+            gestorCatalogo->getTotalCanciones(),
+            mensajesArray,
+            totalMensajes,
+            usuarioActual
+            );
+    } else {
+        reproductor->actualizarDatos(
+            cancionesArray,
+            gestorCatalogo->getTotalCanciones(),
+            mensajesArray,
+            totalMensajes,
+            usuarioActual
+            );
+    }
+
+    reproductor->reproducirAleatorio();
 
     delete[] cancionesArray;
     delete[] mensajesArray;
 
-    if (reproductor != nullptr) {
-        delete reproductor;
-    }
-
-    reproductor = nuevoReproductor;
-    reproductor->reproducirAleatorio();
-
-    // Mostrar métricas después de la reproducción
     std::cout << "\n--- METRICAS DE EFICIENCIA ---" << std::endl;
     std::cout << "Iteraciones realizadas: " << getTotalIteraciones() << std::endl;
     calcularMemoria();
     std::cout << "Memoria consumida: " << memoriaConsumida << " bytes ("
               << memoriaConsumida / 1024 << " KB)" << std::endl;
-}
-
-void SistemaUdeATunes::incrementarIteraciones(int cantidad) const {
-    totalIteraciones += cantidad;
 }
 
 void SistemaUdeATunes::mostrarMetricas() const {
@@ -197,14 +202,6 @@ Usuario* SistemaUdeATunes::buscarUsuario(const std::string& nickname) const {
 
 Cancion* SistemaUdeATunes::buscarCancion(int id) const {
     return gestorCatalogo->buscarCancion(id);
-}
-
-Artista* SistemaUdeATunes::buscarArtista(int id) const {
-    return gestorCatalogo->buscarArtista(id);
-}
-
-Album* SistemaUdeATunes::buscarAlbum(int id) const {
-    return gestorCatalogo->buscarAlbum(id);
 }
 
 void SistemaUdeATunes::mostrarCancionesDisponibles() const {
@@ -269,6 +266,67 @@ bool SistemaUdeATunes::agregarCancionAFavoritos(int idCancion) {
               << memoriaConsumida / 1024 << " KB)" << std::endl;
 
     return resultado;
+}
+
+bool SistemaUdeATunes::seguirListaUsuario(const std::string& nicknameSeguido) {
+    if (usuarioActual == nullptr || !usuarioActual->esPremium()) {
+        std::cout << "Solo usuarios premium pueden seguir listas." << std::endl;
+        return false;
+    }
+
+    if (nicknameSeguido == usuarioActual->getNickname()) {
+        std::cout << "No puedes seguir tu propia lista." << std::endl;
+        return false;
+    }
+
+    incrementarIteraciones();
+    Usuario* usuarioSeguido = gestorUsuarios->buscarUsuario(nicknameSeguido);
+
+    if (usuarioSeguido == nullptr) {
+        std::cout << "Usuario '" << nicknameSeguido << "' no encontrado." << std::endl;
+        return false;
+    }
+
+    if (!usuarioSeguido->esPremium()) {
+        std::cout << "El usuario '" << nicknameSeguido << "' no es premium y no tiene lista de favoritos." << std::endl;
+        return false;
+    }
+
+    if (usuarioSeguido->getListaFavoritos() == nullptr) {
+        std::cout << "El usuario '" << nicknameSeguido << "' no tiene lista de favoritos." << std::endl;
+        return false;
+    }
+
+    usuarioActual->getListaFavoritos()->seguirLista(usuarioSeguido->getListaFavoritos());
+    return true;
+}
+
+void SistemaUdeATunes::dejarDeSeguirLista() {
+    if (usuarioActual == nullptr || !usuarioActual->esPremium()) {
+        std::cout << "Solo usuarios premium pueden seguir listas." << std::endl;
+        return;
+    }
+
+    if (usuarioActual->getListaFavoritos() == nullptr) {
+        std::cout << "No tienes lista de favoritos." << std::endl;
+        return;
+    }
+
+    usuarioActual->getListaFavoritos()->dejarDeSeguirLista();
+}
+
+void SistemaUdeATunes::incrementarIteraciones(int cantidad) const {
+    totalIteraciones += cantidad;
+}
+
+void SistemaUdeATunes::resetIteraciones() const {
+    totalIteraciones = 0;
+    gestorUsuarios->resetIteraciones();
+    gestorCatalogo->resetIteraciones();
+}
+
+unsigned long SistemaUdeATunes::getTotalIteraciones() const {
+    return totalIteraciones + gestorUsuarios->getIteraciones() + gestorCatalogo->getIteraciones();
 }
 
 unsigned long SistemaUdeATunes::calcularMemoriaMensajes() const {
@@ -344,51 +402,4 @@ void SistemaUdeATunes::mostrarMetricasEficiencia() const {
     std::cout << "Aproximadamente: " << memoriaConsumida / 1024 << " KB" << std::endl;
     std::cout << "Aproximadamente: " << memoriaConsumida / (1024 * 1024) << " MB" << std::endl;
     std::cout << "==========================================" << std::endl;
-}
-
-bool SistemaUdeATunes::seguirListaUsuario(const std::string& nicknameSeguido) {
-    if (usuarioActual == nullptr || !usuarioActual->esPremium()) {
-        std::cout << "Solo usuarios premium pueden seguir listas." << std::endl;
-        return false;
-    }
-
-    if (nicknameSeguido == usuarioActual->getNickname()) {
-        std::cout << "No puedes seguir tu propia lista." << std::endl;
-        return false;
-    }
-
-    incrementarIteraciones();
-    Usuario* usuarioSeguido = gestorUsuarios->buscarUsuario(nicknameSeguido);
-
-    if (usuarioSeguido == nullptr) {
-        std::cout << "Usuario '" << nicknameSeguido << "' no encontrado." << std::endl;
-        return false;
-    }
-
-    if (!usuarioSeguido->esPremium()) {
-        std::cout << "El usuario '" << nicknameSeguido << "' no es premium y no tiene lista de favoritos." << std::endl;
-        return false;
-    }
-
-    if (usuarioSeguido->getListaFavoritos() == nullptr) {
-        std::cout << "El usuario '" << nicknameSeguido << "' no tiene lista de favoritos." << std::endl;
-        return false;
-    }
-
-    usuarioActual->getListaFavoritos()->seguirLista(usuarioSeguido->getListaFavoritos());
-    return true;
-}
-
-void SistemaUdeATunes::dejarDeSeguirLista() {
-    if (usuarioActual == nullptr || !usuarioActual->esPremium()) {
-        std::cout << "Solo usuarios premium pueden seguir listas." << std::endl;
-        return;
-    }
-
-    if (usuarioActual->getListaFavoritos() == nullptr) {
-        std::cout << "No tienes lista de favoritos." << std::endl;
-        return;
-    }
-
-    usuarioActual->getListaFavoritos()->dejarDeSeguirLista();
 }
