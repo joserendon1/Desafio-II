@@ -291,9 +291,17 @@ void GestorCatalogo::cargarCanciones() {
 
         int id = std::stoi(idStr);
 
+        if (idStr.length() != 9) {
+            std::cout << "ID de canción con formato incorrecto: " << idStr << std::endl;
+            continue;
+        }
+
         int artistaId = id / 10000;
         int albumId = (id % 10000) / 100;
-        int albumIdCompleto = artistaId * 100 + albumId;
+        int cancionId = id % 100;
+
+        // CALCULAR EL ID COMPLETO DEL ÁLBUM (artistaId + albumId)
+        int albumIdCompleto = artistaId * 100 + albumId;  // <- ESTA LÍNEA FALTABA
 
         Album* album = buscarAlbum(albumIdCompleto);
 
@@ -336,4 +344,43 @@ void GestorCatalogo::guardarCanciones() const {
     }
 
     archivo.close();
+}
+
+unsigned long GestorCatalogo::calcularMemoriaArtistas() const {
+    unsigned long memoria = 0;
+    ContenedorArtista* actual = inicioArtistas;
+    while (actual != nullptr) {
+        memoria += sizeof(ContenedorArtista);
+        memoria += sizeof(Artista);
+        memoria += actual->contenido->nombre.capacity();
+        actual = actual->siguiente;
+    }
+    return memoria;
+}
+
+unsigned long GestorCatalogo::calcularMemoriaAlbumes() const {
+    unsigned long memoria = 0;
+    ContenedorAlbum* actual = inicioAlbumes;
+    while (actual != nullptr) {
+        memoria += sizeof(ContenedorAlbum);
+        memoria += sizeof(Album);
+        memoria += actual->contenido->nombre.capacity();
+        memoria += actual->contenido->portada.capacity();
+        actual = actual->siguiente;
+    }
+    return memoria;
+}
+
+unsigned long GestorCatalogo::calcularMemoriaCanciones() const {
+    unsigned long memoria = 0;
+    ContenedorCancion* actual = inicioCanciones;
+    while (actual != nullptr) {
+        memoria += sizeof(ContenedorCancion);
+        memoria += sizeof(Cancion);
+        memoria += actual->contenido->getNombre().capacity();
+        memoria += actual->contenido->obtenerRuta(false).capacity();
+        memoria += actual->contenido->obtenerRuta(true).capacity();
+        actual = actual->siguiente;
+    }
+    return memoria;
 }

@@ -90,9 +90,28 @@ void GestorUsuarios::cargarUsuarios() {
         std::getline(ss, nickname, '|');
         std::getline(ss, membresia, '|');
 
+        nickname.erase(0, nickname.find_first_not_of(" \t\n\r\f\v"));
+        nickname.erase(nickname.find_last_not_of(" \t\n\r\f\v") + 1);
+        membresia.erase(0, membresia.find_first_not_of(" \t\n\r\f\v"));
+        membresia.erase(membresia.find_last_not_of(" \t\n\r\f\v") + 1);
+
         Usuario* nuevoUsuario = new Usuario(nickname, membresia);
         agregarUsuario(nuevoUsuario);
     }
 
     archivo.close();
+}
+
+unsigned long GestorUsuarios::calcularMemoriaUsuarios() const {
+    unsigned long memoria = 0;
+    ContenedorUsuario* actual = inicio;
+    while (actual != nullptr) {
+        memoria += sizeof(ContenedorUsuario);
+        memoria += sizeof(Usuario);
+        memoria += actual->contenido->getNickname().capacity();
+        memoria += actual->contenido->getMembresia().capacity();
+
+        actual = actual->siguiente;
+    }
+    return memoria;
 }

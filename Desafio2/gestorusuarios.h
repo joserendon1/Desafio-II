@@ -28,9 +28,11 @@ public:
     int getTotalUsuarios() const { return totalUsuarios; }
     Usuario** getUsuariosArray() const;
     unsigned long getIteraciones() const { return iteraciones; }
-    void incrementarIteraciones(int cantidad = 1) const { iteraciones += cantidad; }
 
+    void incrementarIteraciones(int cantidad = 1) const { iteraciones += cantidad; }
+    void resetIteraciones() const { iteraciones = 0; }
     void limpiarUsuarios();
+    unsigned long calcularMemoriaUsuarios() const;
 };
 
 #endif

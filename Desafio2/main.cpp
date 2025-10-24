@@ -27,6 +27,7 @@ void mostrarMenuUsuario(SistemaUdeATunes& sistema) {
     std::cout << "==========================================" << std::endl;
     std::cout << "Usuario: " << sistema.getUsuarioActual()->getNickname() << std::endl;
     std::cout << "Membresia: " << sistema.getUsuarioActual()->getMembresia() << std::endl;
+
     std::cout << "------------------------------------------" << std::endl;
     std::cout << "1. Reproduccion aleatoria" << std::endl;
     std::cout << "2. Ver catalogo de canciones" << std::endl;
@@ -40,7 +41,6 @@ void mostrarMenuUsuario(SistemaUdeATunes& sistema) {
     std::cout << "------------------------------------------" << std::endl;
     std::cout << "Seleccione una opcion: ";
 }
-
 void menuGestionarFavoritos(SistemaUdeATunes& sistema) {
     int opcion;
     do {
@@ -155,44 +155,52 @@ int main() {
             std::cin >> opcion;
             limpiarBuffer();
 
-            switch (opcion) {
-            case 1:
-                sistema.reproducirAleatorio();
-                break;
-            case 2:
-                sistema.mostrarCancionesDisponibles();
-                break;
-            case 3:
-                if (sistema.getUsuarioActual()->esPremium()) {
+            if (sistema.getUsuarioActual()->esPremium()) {
+                switch (opcion) {
+                case 1:
+                    sistema.reproducirAleatorio();
+                    break;
+                case 2:
+                    sistema.mostrarCancionesDisponibles();
+                    break;
+                case 3:
                     menuGestionarFavoritos(sistema);
-                } else {
-                    std::cout << "Opcion no disponible para usuarios estandar." << std::endl;
-                }
-                break;
-            case 4:
-                if (sistema.getUsuarioActual()->esPremium()) {
+                    break;
+                case 4:
+                {
                     std::string nickname;
                     std::cout << "Ingrese el nickname del usuario a seguir: ";
                     std::getline(std::cin, nickname);
                     if (sistema.seguirListaUsuario(nickname)) {
                         std::cout << "Operacion completada exitosamente." << std::endl;
                     }
-                } else {
-                    std::cout << "Opcion no disponible para usuarios estandar." << std::endl;
                 }
                 break;
-            case 0:
-                sistema.setUsuarioActual(nullptr);
-                sesionActiva = false;
-                std::cout << "Sesion cerrada correctamente." << std::endl;
-                break;
-            default:
-                std::cout << "Opcion no valida. Intente nuevamente." << std::endl;
+                case 0:
+                    sistema.setUsuarioActual(nullptr);
+                    sesionActiva = false;
+                    std::cout << "Sesion cerrada correctamente." << std::endl;
+                    break;
+                default:
+                    std::cout << "Opcion no valida. Intente nuevamente." << std::endl;
+                }
             }
-
-            if (opcion != 0 && sesionActiva) {
-                std::cout << "\nPresione Enter para continuar...";
-                std::cin.get();
+            else {
+                switch (opcion) {
+                case 1:
+                    sistema.reproducirAleatorio();
+                    break;
+                case 2:
+                    sistema.mostrarCancionesDisponibles();
+                    break;
+                case 0:
+                    sistema.setUsuarioActual(nullptr);
+                    sesionActiva = false;
+                    std::cout << "Sesion cerrada correctamente." << std::endl;
+                    break;
+                default:
+                    std::cout << "Opcion no valida. Intente nuevamente." << std::endl;
+                }
             }
         }
     } while (programaActivo);

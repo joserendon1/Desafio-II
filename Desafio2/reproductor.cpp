@@ -31,7 +31,7 @@ int Reproductor::generarNumeroAleatorio(int maximo) {
 void Reproductor::mostrarInterfazReproduccion() {
     if (cancionActual == nullptr) return;
 
-    if (!usuarioActual->esPremium() && contadorCancionesReproducidas % 2 == 0 && totalMensajes > 0) {
+    if (!usuarioActual->esPremium() && contadorCancionesReproducidas % 2 == 0 && contadorCancionesReproducidas > 0) {
         MensajePublicitario* mensaje = obtenerMensajeAleatorio();
         if (mensaje != nullptr) {
             std::cout << "\n--- MENSAJE PUBLICITARIO ---" << std::endl;
@@ -44,13 +44,15 @@ void Reproductor::mostrarInterfazReproduccion() {
             } else {
                 std::cout << "C";
             }
-            std::cout << std::endl;
+            std::cout << " (Prioridad: " << mensaje->prioridad << "x)" << std::endl;
 
             std::cout << "\"" << mensaje->texto << "\"" << std::endl;
             std::cout << "Mostrando publicidad..." << std::endl;
 
             auto start = std::chrono::steady_clock::now();
             while (std::chrono::steady_clock::now() - start < std::chrono::seconds(2)) {}
+
+            std::cout << "--- FIN PUBLICIDAD ---" << std::endl;
         }
     }
 
@@ -77,22 +79,34 @@ void Reproductor::mostrarInterfazReproduccion() {
 MensajePublicitario* Reproductor::obtenerMensajeAleatorio() {
     if (totalMensajes == 0) return nullptr;
 
+    static int ultimoIndice = -1;
+
+    if (totalMensajes == 1) {
+        return todosLosMensajes[0];
+    }
+
     int pesoTotal = 0;
     for (int i = 0; i < totalMensajes; i++) {
         pesoTotal += todosLosMensajes[i]->prioridad;
     }
 
-    int randomValue = generarNumeroAleatorio(pesoTotal);
-    int accumulatedWeight = 0;
+    int mensajeIndex;
+    do {
+        int randomValue = generarNumeroAleatorio(pesoTotal);
+        int accumulatedWeight = 0;
+        mensajeIndex = 0;
 
-    for (int i = 0; i < totalMensajes; i++) {
-        accumulatedWeight += todosLosMensajes[i]->prioridad;
-        if (randomValue < accumulatedWeight) {
-            return todosLosMensajes[i];
+        for (int i = 0; i < totalMensajes; i++) {
+            accumulatedWeight += todosLosMensajes[i]->prioridad;
+            if (randomValue < accumulatedWeight) {
+                mensajeIndex = i;
+                break;
+            }
         }
-    }
+    } while (mensajeIndex == ultimoIndice && totalMensajes > 1);
 
-    return todosLosMensajes[0];
+    ultimoIndice = mensajeIndex;
+    return todosLosMensajes[mensajeIndex];
 }
 
 void Reproductor::reproducirAleatorio() {
@@ -103,11 +117,12 @@ void Reproductor::reproducirAleatorio() {
 
     reproduciendo = true;
     contadorCancionesReproducidas = 0;
+    const int LIMITE_CANCIONES_PRUEBA = 5;
 
     std::cout << "Iniciando reproduccion aleatoria..." << std::endl;
-    std::cout << "Se reproduciran 5 canciones (modo prueba)" << std::endl;
+    std::cout << "Se reproduciran " << LIMITE_CANCIONES_PRUEBA << " canciones (modo prueba)" << std::endl;
 
-    for (int i = 0; i < 5 && reproduciendo; i++) {
+    for (int i = 0; i < LIMITE_CANCIONES_PRUEBA && reproduciendo; i++) {
         indiceActual = generarNumeroAleatorio(totalCanciones);
         cancionActual = todasLasCanciones[indiceActual];
 
@@ -129,41 +144,59 @@ void Reproductor::reproducirAleatorio() {
             std::cout << "Reproduciendo..." << std::endl;
             {
                 auto start = std::chrono::steady_clock::now();
-                while (std::chrono::steady_clock::now() - start < std::chrono::seconds(3)) {}
+                while (std::chrono::steady_clock::now() - start < std::chrono::seconds(3)) {
+                }
             }
             std::cout << "Cancion finalizada." << std::endl;
             break;
 
         case 2:
-            reproduciendo = false;
-            std::cout << "Reproduccion detenida." << std::endl;
+            if (reproduciendo) {
+                reproduciendo = false;
+                std::cout << "Reproduccion detenida." << std::endl;
+            } else {
+                std::cout << "No hay reproduccion en curso para detener." << std::endl;
+                i--;
+            }
             break;
-
         case 3:
             if (usuarioActual->esPremium()) {
-                std::cout << "Saltando a siguiente cancion..." << std::endl;
-                i--;
-                siguienteCancion();
+                if (reproduciendo) {
+                    std::cout << "Saltando a siguiente cancion..." << std::endl;
+                } else {
+                    std::cout << "No hay reproduccion en curso." << std::endl;
+                    i--;
+                }
             } else {
                 std::cout << "Opcion no disponible para usuarios estandar." << std::endl;
                 i--;
             }
             break;
-
         case 4:
             if (usuarioActual->esPremium()) {
-                cancionAnterior();
-                i--;
+                if (reproduciendo && indiceHistorial > 1) {
+                    cancionAnterior();
+
+                    contadorCancionesReproducidas--;
+                    i--;
+                } else {
+                    std::cout << "No hay canciones anteriores disponibles." << std::endl;
+                    i--;
+                }
             } else {
                 std::cout << "Opcion no disponible para usuarios estandar." << std::endl;
                 i--;
             }
             break;
-
         case 5:
             if (usuarioActual->esPremium()) {
-                toggleRepetir();
-                i--;
+                if (reproduciendo) {
+                    toggleRepetir();
+                    i--;
+                } else {
+                    std::cout << "No hay reproduccion en curso." << std::endl;
+                    i--;
+                }
             } else {
                 std::cout << "Opcion no disponible para usuarios estandar." << std::endl;
                 i--;
@@ -173,12 +206,14 @@ void Reproductor::reproducirAleatorio() {
         default:
             std::cout << "Opcion no valida. Reproduciendo automaticamente..." << std::endl;
             {
+
                 auto start = std::chrono::steady_clock::now();
                 while (std::chrono::steady_clock::now() - start < std::chrono::seconds(3)) {}
             }
             std::cout << "Cancion finalizada." << std::endl;
             break;
         }
+
 
         if (modoRepetir && reproduciendo) {
             i--;
@@ -187,7 +222,7 @@ void Reproductor::reproducirAleatorio() {
     }
 
     if (reproduciendo) {
-        std::cout << "Reproduccion finalizada (limite de 5 canciones alcanzado)." << std::endl;
+        std::cout << "Reproduccion finalizada (limite de " << LIMITE_CANCIONES_PRUEBA << " canciones alcanzado)." << std::endl;
     }
 
     reproduciendo = false;

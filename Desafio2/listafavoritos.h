@@ -16,6 +16,7 @@ private:
     int totalCanciones;
     Usuario* usuario;
     ListaFavoritos* listaSeguida;
+    mutable unsigned long iteraciones;
 
 public:
     ListaFavoritos(Usuario* usuario);
@@ -40,6 +41,12 @@ public:
 
     Usuario* getUsuario() const { return usuario; }
     Cancion** getCancionesArray() const;
+    ContenedorCancionFavorita* getInicio() const { return inicio; }
+
+    unsigned long getIteraciones() const { return iteraciones; }
+    void resetIteraciones() const { iteraciones = 0; }
+    void incrementarIteraciones(int cantidad = 1) const { iteraciones += cantidad; }
+    unsigned long calcularMemoria() const;
 };
 
 #endif

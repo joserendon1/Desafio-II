@@ -123,6 +123,7 @@ bool SistemaUdeATunes::login() {
         usuarioActual = usuario;
         std::cout << "¡Bienvenido " << nickname << "!" << std::endl;
         std::cout << "Membresía: " << usuario->getMembresia() << std::endl;
+
         return true;
     } else {
         std::cout << "Usuario no encontrado." << std::endl;
@@ -131,6 +132,9 @@ bool SistemaUdeATunes::login() {
 }
 
 void SistemaUdeATunes::reproducirAleatorio() {
+    // Resetear contadores antes de comenzar
+    resetIteraciones();
+
     if (gestorCatalogo->getTotalCanciones() == 0) {
         std::cout << "No hay canciones disponibles para reproducir." << std::endl;
         return;
@@ -141,6 +145,7 @@ void SistemaUdeATunes::reproducirAleatorio() {
         return;
     }
 
+    // Las siguientes operaciones incrementarán iteraciones automáticamente
     Cancion** cancionesArray = gestorCatalogo->getCancionesArray();
     MensajePublicitario** mensajesArray = getMensajesArray();
 
@@ -161,6 +166,13 @@ void SistemaUdeATunes::reproducirAleatorio() {
 
     reproductor = nuevoReproductor;
     reproductor->reproducirAleatorio();
+
+    // Mostrar métricas después de la reproducción
+    std::cout << "\n--- METRICAS DE EFICIENCIA ---" << std::endl;
+    std::cout << "Iteraciones realizadas: " << getTotalIteraciones() << std::endl;
+    calcularMemoria();
+    std::cout << "Memoria consumida: " << memoriaConsumida << " bytes ("
+              << memoriaConsumida / 1024 << " KB)" << std::endl;
 }
 
 void SistemaUdeATunes::incrementarIteraciones(int cantidad) const {
@@ -218,44 +230,104 @@ void SistemaUdeATunes::mostrarCancionesDisponibles() const {
 }
 
 bool SistemaUdeATunes::agregarCancionAFavoritos(int idCancion) {
+    totalIteraciones = 0;
+
     if (usuarioActual == nullptr || !usuarioActual->esPremium()) {
         std::cout << "Solo usuarios premium pueden tener listas de favoritos." << std::endl;
+        incrementarIteraciones(2);
         return false;
     }
+
+    incrementarIteraciones(2);
 
     Cancion* cancion = gestorCatalogo->buscarCancion(idCancion);
     if (cancion == nullptr) {
         std::cout << "Canción no encontrada." << std::endl;
+        incrementarIteraciones();
         return false;
     }
 
-    if (usuarioActual->getListaFavoritos()->agregarCancion(cancion)) {
+    incrementarIteraciones();
+
+    bool resultado = usuarioActual->getListaFavoritos()->agregarCancion(cancion);
+    unsigned long iteracionesFavoritos = usuarioActual->getListaFavoritos()->getIteraciones();
+    incrementarIteraciones(iteracionesFavoritos);
+
+    if (resultado) {
         std::cout << "Canción agregada a favoritos: " << cancion->getNombre() << std::endl;
-        return true;
+        incrementarIteraciones();
     } else {
         std::cout << "La canción ya está en favoritos o la lista está llena." << std::endl;
-        return false;
     }
+
+    std::cout << "\n--- METRICAS DE EFICIENCIA ---" << std::endl;
+    std::cout << "Iteraciones realizadas: " << totalIteraciones << std::endl;
+    std::cout << " - Sistema: " << totalIteraciones - iteracionesFavoritos << std::endl;
+    std::cout << " - ListaFavoritos: " << iteracionesFavoritos << std::endl;
+    calcularMemoria();
+    std::cout << "Memoria consumida: " << memoriaConsumida << " bytes ("
+              << memoriaConsumida / 1024 << " KB)" << std::endl;
+
+    return resultado;
+}
+
+unsigned long SistemaUdeATunes::calcularMemoriaMensajes() const {
+    unsigned long memoria = 0;
+    ContenedorMensaje* actual = inicioMensajes;
+    while (actual != nullptr) {
+        memoria += sizeof(ContenedorMensaje);
+        memoria += sizeof(MensajePublicitario);
+        memoria += actual->contenido->texto.capacity();
+        actual = actual->siguiente;
+    }
+    return memoria;
+}
+
+unsigned long SistemaUdeATunes::calcularMemoriaTodasListasFavoritos() const {
+    unsigned long memoria = 0;
+
+    Usuario** usuariosArray = gestorUsuarios->getUsuariosArray();
+    if (usuariosArray != nullptr) {
+        int totalUsuarios = gestorUsuarios->getTotalUsuarios();
+        for (int i = 0; i < totalUsuarios; i++) {
+            if (usuariosArray[i]->getListaFavoritos() != nullptr) {
+                memoria += sizeof(ListaFavoritos);
+                int totalCanciones = usuariosArray[i]->getListaFavoritos()->getTotalCanciones();
+                memoria += totalCanciones * sizeof(void*); // Aproximación de nodos
+            }
+        }
+        delete[] usuariosArray;
+    }
+
+    return memoria;
 }
 
 void SistemaUdeATunes::calcularMemoria() const {
-
     memoriaConsumida = 0;
+
     memoriaConsumida += sizeof(*this);
     memoriaConsumida += sizeof(*gestorUsuarios);
     memoriaConsumida += sizeof(*gestorCatalogo);
 
-    ContenedorMensaje* actual = inicioMensajes;
-    while (actual != nullptr) {
-        memoriaConsumida += sizeof(ContenedorMensaje);
-        memoriaConsumida += sizeof(MensajePublicitario);
-        memoriaConsumida += actual->contenido->texto.capacity();
-        actual = actual->siguiente;
+    if (reproductor != nullptr) {
+        memoriaConsumida += sizeof(*reproductor);
     }
-    memoriaConsumida += gestorUsuarios->getTotalUsuarios() * (sizeof(Usuario) + 50);
-    memoriaConsumida += gestorCatalogo->getTotalArtistas() * (sizeof(Artista) + 40);
-    memoriaConsumida += gestorCatalogo->getTotalAlbumes() * (sizeof(Album) + 100);
-    memoriaConsumida += gestorCatalogo->getTotalCanciones() * (sizeof(Cancion) + 80);
+
+    if (usuarioActual != nullptr) {
+        memoriaConsumida += sizeof(*usuarioActual);
+        memoriaConsumida += usuarioActual->getNickname().capacity();
+        memoriaConsumida += usuarioActual->getMembresia().capacity();
+    }
+
+    memoriaConsumida += gestorUsuarios->calcularMemoriaUsuarios();
+
+    memoriaConsumida += gestorCatalogo->calcularMemoriaArtistas();
+    memoriaConsumida += gestorCatalogo->calcularMemoriaAlbumes();
+    memoriaConsumida += gestorCatalogo->calcularMemoriaCanciones();
+
+    memoriaConsumida += calcularMemoriaMensajes();
+
+    memoriaConsumida += calcularMemoriaTodasListasFavoritos();
 }
 
 void SistemaUdeATunes::mostrarMetricasEficiencia() const {
@@ -264,9 +336,13 @@ void SistemaUdeATunes::mostrarMetricasEficiencia() const {
     std::cout << "\n==========================================" << std::endl;
     std::cout << "          METRICAS DE EFICIENCIA" << std::endl;
     std::cout << "==========================================" << std::endl;
-    std::cout << "Total de iteraciones: " << totalIteraciones << std::endl;
+    std::cout << "Total de iteraciones: " << getTotalIteraciones() << std::endl;
+    std::cout << " - GestorUsuarios: " << gestorUsuarios->getIteraciones() << std::endl;
+    std::cout << " - GestorCatalogo: " << gestorCatalogo->getIteraciones() << std::endl;
+    std::cout << " - Sistema: " << totalIteraciones << std::endl;
     std::cout << "Memoria consumida: " << memoriaConsumida << " bytes" << std::endl;
     std::cout << "Aproximadamente: " << memoriaConsumida / 1024 << " KB" << std::endl;
+    std::cout << "Aproximadamente: " << memoriaConsumida / (1024 * 1024) << " MB" << std::endl;
     std::cout << "==========================================" << std::endl;
 }
 

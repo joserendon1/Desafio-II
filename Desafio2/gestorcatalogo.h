@@ -59,6 +59,9 @@ public:
     int getTotalArtistas() const { return totalArtistas; }
     int getTotalAlbumes() const { return totalAlbumes; }
     int getTotalCanciones() const { return totalCanciones; }
+    ContenedorArtista* getInicioArtistas() const { return inicioArtistas; }
+    ContenedorAlbum* getInicioAlbumes() const { return inicioAlbumes; }
+    ContenedorCancion* getInicioCanciones() const { return inicioCanciones; }
 
     Artista** getArtistasArray() const;
     Album** getAlbumesArray() const;
@@ -66,6 +69,10 @@ public:
 
     unsigned long getIteraciones() const { return iteraciones; }
     void incrementarIteraciones(int cantidad = 1) const { iteraciones += cantidad; }
+    void resetIteraciones() const { iteraciones = 0; }
+    unsigned long calcularMemoriaArtistas() const;
+    unsigned long calcularMemoriaAlbumes() const;
+    unsigned long calcularMemoriaCanciones() const;
 
     void limpiarCatalogo();
 };

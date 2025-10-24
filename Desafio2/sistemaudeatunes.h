@@ -26,6 +26,8 @@ private:
 
     mutable unsigned long totalIteraciones;
     mutable unsigned long memoriaConsumida;
+    unsigned long calcularMemoriaMensajes() const;
+    unsigned long calcularMemoriaTodasListasFavoritos() const;
 
     void cargarMensajes();
     void guardarCambios() const;
@@ -66,6 +68,15 @@ public:
     void dejarDeSeguirLista();
 
     void incrementarIteraciones(int cantidad = 1) const;
+    void resetIteraciones() const {
+        totalIteraciones = 0;
+        gestorUsuarios->resetIteraciones();
+        gestorCatalogo->resetIteraciones();
+    }
+
+    unsigned long getTotalIteraciones() const {
+        return totalIteraciones + gestorUsuarios->getIteraciones() + gestorCatalogo->getIteraciones();
+    }
     void calcularMemoria() const;
 };
 
