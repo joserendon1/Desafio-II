@@ -13,36 +13,51 @@ GestorCatalogo::~GestorCatalogo() {
 
 void GestorCatalogo::limpiarArtistas() {
     ContenedorArtista* actual = inicioArtistas;
+    int iteracionesLocales = 0;
+
     while (actual != nullptr) {
+        iteracionesLocales++;
         ContenedorArtista* siguiente = actual->siguiente;
         delete actual->contenido;
         delete actual;
         actual = siguiente;
     }
+    incrementarIteraciones(iteracionesLocales);
+
     inicioArtistas = nullptr;
     totalArtistas = 0;
 }
 
 void GestorCatalogo::limpiarAlbumes() {
     ContenedorAlbum* actual = inicioAlbumes;
+    int iteracionesLocales = 0;
+
     while (actual != nullptr) {
+        iteracionesLocales++;
         ContenedorAlbum* siguiente = actual->siguiente;
         delete actual->contenido;
         delete actual;
         actual = siguiente;
     }
+    incrementarIteraciones(iteracionesLocales);
+
     inicioAlbumes = nullptr;
     totalAlbumes = 0;
 }
 
 void GestorCatalogo::limpiarCanciones() {
     ContenedorCancion* actual = inicioCanciones;
+    int iteracionesLocales = 0;
+
     while (actual != nullptr) {
+        iteracionesLocales++;
         ContenedorCancion* siguiente = actual->siguiente;
         delete actual->contenido;
         delete actual;
         actual = siguiente;
     }
+    incrementarIteraciones(iteracionesLocales);
+
     inicioCanciones = nullptr;
     totalCanciones = 0;
 }
@@ -54,143 +69,210 @@ void GestorCatalogo::limpiarCatalogo() {
 }
 
 bool GestorCatalogo::agregarArtista(Artista* artista) {
-    incrementarIteraciones();
+    resetIteraciones();
 
-    if (artista == nullptr || buscarArtista(artista->id) != nullptr) {
+    if (artista == nullptr) {
+        incrementarIteraciones();
+        return false;
+    }
+
+    if (buscarArtista(artista->id) != nullptr) {
+        incrementarIteraciones(2);
         return false;
     }
 
     ContenedorArtista* nuevoContenedor = new ContenedorArtista(artista);
+    incrementarIteraciones();
 
     if (inicioArtistas == nullptr) {
         inicioArtistas = nuevoContenedor;
+        incrementarIteraciones();
     } else {
         ContenedorArtista* actual = inicioArtistas;
+        int iteracionesLocales = 0;
+
         while (actual->siguiente != nullptr) {
+            iteracionesLocales++;
             actual = actual->siguiente;
         }
         actual->siguiente = nuevoContenedor;
+        incrementarIteraciones(iteracionesLocales + 1);
     }
 
     totalArtistas++;
+    incrementarIteraciones();
     return true;
 }
 
 bool GestorCatalogo::agregarAlbum(Album* album) {
-    incrementarIteraciones();
+    resetIteraciones();
 
-    if (album == nullptr || buscarAlbum(album->id) != nullptr) {
+    if (album == nullptr) {
+        incrementarIteraciones();
+        return false;
+    }
+
+    if (buscarAlbum(album->id) != nullptr) {
+        incrementarIteraciones(2);
         return false;
     }
 
     ContenedorAlbum* nuevoContenedor = new ContenedorAlbum(album);
+    incrementarIteraciones();
 
     if (inicioAlbumes == nullptr) {
         inicioAlbumes = nuevoContenedor;
+        incrementarIteraciones();
     } else {
         ContenedorAlbum* actual = inicioAlbumes;
+        int iteracionesLocales = 0;
+
         while (actual->siguiente != nullptr) {
+            iteracionesLocales++;
             actual = actual->siguiente;
         }
         actual->siguiente = nuevoContenedor;
+        incrementarIteraciones(iteracionesLocales + 1);
     }
 
     totalAlbumes++;
+    incrementarIteraciones();
     return true;
 }
 
 bool GestorCatalogo::agregarCancion(Cancion* cancion) {
-    incrementarIteraciones();
+    resetIteraciones();
 
-    if (cancion == nullptr || buscarCancion(cancion->getId()) != nullptr) {
+    if (cancion == nullptr) {
+        incrementarIteraciones();
+        return false;
+    }
+
+    if (buscarCancion(cancion->getId()) != nullptr) {
+        incrementarIteraciones(2);
         return false;
     }
 
     ContenedorCancion* nuevoContenedor = new ContenedorCancion(cancion);
+    incrementarIteraciones();
 
     if (inicioCanciones == nullptr) {
         inicioCanciones = nuevoContenedor;
+        incrementarIteraciones();
     } else {
         ContenedorCancion* actual = inicioCanciones;
+        int iteracionesLocales = 0;
+
         while (actual->siguiente != nullptr) {
+            iteracionesLocales++;
             actual = actual->siguiente;
         }
         actual->siguiente = nuevoContenedor;
+        incrementarIteraciones(iteracionesLocales + 1);
     }
 
     totalCanciones++;
+    incrementarIteraciones();
     return true;
 }
 
 Artista* GestorCatalogo::buscarArtista(int id) const {
-    incrementarIteraciones();
+    resetIteraciones();
 
     ContenedorArtista* actual = inicioArtistas;
+    int iteracionesLocales = 0;
+
     while (actual != nullptr) {
-        incrementarIteraciones();
+        iteracionesLocales++;
         if (actual->contenido->id == id) {
+            incrementarIteraciones(iteracionesLocales);
             return actual->contenido;
         }
         actual = actual->siguiente;
     }
+
+    incrementarIteraciones(iteracionesLocales);
     return nullptr;
 }
 
 Album* GestorCatalogo::buscarAlbum(int id) const {
-    incrementarIteraciones();
+    resetIteraciones();
 
     ContenedorAlbum* actual = inicioAlbumes;
+    int iteracionesLocales = 0;
+
     while (actual != nullptr) {
-        incrementarIteraciones();
+        iteracionesLocales++;
         if (actual->contenido->id == id) {
+            incrementarIteraciones(iteracionesLocales);
             return actual->contenido;
         }
         actual = actual->siguiente;
     }
+
+    incrementarIteraciones(iteracionesLocales);
     return nullptr;
 }
 
 Cancion* GestorCatalogo::buscarCancion(int id) const {
-    incrementarIteraciones();
+    resetIteraciones();
 
     ContenedorCancion* actual = inicioCanciones;
+    int iteracionesLocales = 0;
+
     while (actual != nullptr) {
-        incrementarIteraciones();
+        iteracionesLocales++;
         if (actual->contenido->getId() == id) {
+            incrementarIteraciones(iteracionesLocales);
             return actual->contenido;
         }
         actual = actual->siguiente;
     }
+
+    incrementarIteraciones(iteracionesLocales);
     return nullptr;
 }
 
 Cancion** GestorCatalogo::getCancionesArray() const {
-    if (totalCanciones == 0) return nullptr;
+    resetIteraciones();
+
+    if (totalCanciones == 0) {
+        incrementarIteraciones();
+        return nullptr;
+    }
 
     Cancion** array = new Cancion*[totalCanciones];
     ContenedorCancion* actual = inicioCanciones;
     int index = 0;
+    int iteracionesLocales = 0;
 
     while (actual != nullptr) {
+        iteracionesLocales++;
         array[index++] = actual->contenido;
         actual = actual->siguiente;
     }
 
+    incrementarIteraciones(iteracionesLocales + 1);
     return array;
 }
 
 void GestorCatalogo::cargarArtistas() {
+    resetIteraciones();
+
     std::ifstream archivo("datos/artistas.txt");
     if (!archivo.is_open()) {
         std::cout << "No se pudo abrir el archivo de artistas." << std::endl;
+        incrementarIteraciones();
         return;
     }
 
     std::string linea;
     int lineNumber = 0;
     int artistasCargados = 0;
+    int iteracionesLocales = 0;
 
     while (std::getline(archivo, linea)) {
+        iteracionesLocales++;
         lineNumber++;
         if (linea.empty()) continue;
 
@@ -198,7 +280,6 @@ void GestorCatalogo::cargarArtistas() {
         std::string idStr, nombre;
 
         if (std::getline(ss, idStr, '|') && std::getline(ss, nombre, '|')) {
-
             idStr.erase(0, idStr.find_first_not_of(" \t\n\r\f\v"));
             idStr.erase(idStr.find_last_not_of(" \t\n\r\f\v") + 1);
             nombre.erase(0, nombre.find_first_not_of(" \t\n\r\f\v"));
@@ -210,26 +291,31 @@ void GestorCatalogo::cargarArtistas() {
 
                 if (agregarArtista(nuevoArtista)) {
                     artistasCargados++;
+                    iteracionesLocales += getIteraciones();
                 } else {
                     delete nuevoArtista;
                 }
+                resetIteraciones();
 
             } catch (const std::exception& e) {
                 std::cout << "ERROR linea " << lineNumber << ": " << e.what() << std::endl;
                 continue;
             }
-        } else {
-            std::cout << "ERROR linea " << lineNumber << ": Formato incorrecto" << std::endl;
         }
     }
 
     archivo.close();
+    incrementarIteraciones(iteracionesLocales + 1);
+    //std::cout << "Artistas cargados: " << artistasCargados << std::endl;
 }
 
 void GestorCatalogo::cargarAlbumes() {
+    resetIteraciones();
+
     std::ifstream archivo("datos/albumes.txt");
     if (!archivo.is_open()) {
         std::cout << "No se pudo abrir el archivo de albumes." << std::endl;
+        incrementarIteraciones();
         return;
     }
 
@@ -237,13 +323,16 @@ void GestorCatalogo::cargarAlbumes() {
     int lineNumber = 0;
     int albumesCargados = 0;
     int albumesConErrores = 0;
+    int iteracionesLocales = 0;
 
     while (std::getline(archivo, linea)) {
+        iteracionesLocales++;
         lineNumber++;
         if (linea.empty()) continue;
 
         int totalCampos = 0;
         for (char c : linea) {
+            iteracionesLocales++;
             if (c == '|') totalCampos++;
         }
         totalCampos++;
@@ -288,10 +377,10 @@ void GestorCatalogo::cargarAlbumes() {
         portada.erase(portada.find_last_not_of(" \t\n\r\f\v") + 1);
 
         try {
-
             int id = std::stoi(idStr);
             int artistaId = id / 100;
             Artista* artista = buscarArtista(artistaId);
+            iteracionesLocales += getIteraciones();
 
             if (artista != nullptr) {
                 Album* nuevoAlbum = new Album(id, nombre, artista);
@@ -299,10 +388,12 @@ void GestorCatalogo::cargarAlbumes() {
 
                 if (agregarAlbum(nuevoAlbum)) {
                     albumesCargados++;
+                    iteracionesLocales += getIteraciones();
                 } else {
                     delete nuevoAlbum;
                     albumesConErrores++;
                 }
+                resetIteraciones();
             } else {
                 std::cout << "ERROR linea " << lineNumber << ": Artista no encontrado para album ID: " << id << std::endl;
                 albumesConErrores++;
@@ -316,18 +407,28 @@ void GestorCatalogo::cargarAlbumes() {
     }
 
     archivo.close();
-
+    incrementarIteraciones(iteracionesLocales + 1);
+    //std::cout << "Albumes cargados: " << albumesCargados << std::endl;
 }
 
 void GestorCatalogo::cargarCanciones() {
+    resetIteraciones();
+
     std::ifstream archivo("datos/canciones.txt");
     if (!archivo.is_open()) {
         std::cout << "No se pudo abrir el archivo de canciones." << std::endl;
+        incrementarIteraciones();
         return;
     }
 
     std::string linea;
+    int lineNumber = 0;
+    int cancionesCargadas = 0;
+    int iteracionesLocales = 0;
+
     while (std::getline(archivo, linea)) {
+        iteracionesLocales++;
+        lineNumber++;
         if (linea.empty()) continue;
 
         std::stringstream ss(linea);
@@ -355,12 +456,10 @@ void GestorCatalogo::cargarCanciones() {
 
         auto validarRutaLinux = [](const std::string& ruta) -> bool {
             if (ruta.empty()) return false;
-
             if (ruta[0] != '/') {
                 std::cout << "ADVERTENCIA: Ruta no es absoluta: " << ruta << std::endl;
                 return false;
             }
-
             return true;
         };
 
@@ -369,6 +468,7 @@ void GestorCatalogo::cargarCanciones() {
         }
 
         Album* album = buscarAlbum(albumIdCompleto);
+        iteracionesLocales += getIteraciones();
 
         if (album != nullptr && album->artista->id == artistaId) {
             Cancion* nuevaCancion = new Cancion(id, nombre, album);
@@ -379,10 +479,14 @@ void GestorCatalogo::cargarCanciones() {
             int reproducciones = std::stoi(reproduccionesStr);
             for (int i = 0; i < reproducciones; i++) {
                 nuevaCancion->incrementarReproducciones();
+                iteracionesLocales++;
             }
 
-            agregarCancion(nuevaCancion);
-
+            if (agregarCancion(nuevaCancion)) {
+                cancionesCargadas++;
+                iteracionesLocales += getIteraciones();
+            }
+            resetIteraciones();
         } else {
             std::cout << "ERROR: Álbum no encontrado para canción ID: " << id
                       << " (Artista: " << artistaId << ", Álbum: " << albumIdCompleto << ")" << std::endl;
@@ -390,17 +494,25 @@ void GestorCatalogo::cargarCanciones() {
     }
 
     archivo.close();
+    incrementarIteraciones(iteracionesLocales + 1);
+    //std::cout << "Canciones cargadas: " << cancionesCargadas << std::endl;
 }
 
 void GestorCatalogo::guardarCanciones() const {
+    resetIteraciones();
+
     std::ofstream archivo("datos/canciones.txt");
     if (!archivo.is_open()) {
         std::cout << "No se pudo abrir el archivo de canciones para guardar." << std::endl;
+        incrementarIteraciones();
         return;
     }
 
     ContenedorCancion* actual = inicioCanciones;
+    int iteracionesLocales = 0;
+
     while (actual != nullptr) {
+        iteracionesLocales++;
         archivo << actual->contenido->getId() << "|"
                 << actual->contenido->getNombre() << "|"
                 << actual->contenido->getDuracion() << "|"
@@ -411,37 +523,51 @@ void GestorCatalogo::guardarCanciones() const {
     }
 
     archivo.close();
+    incrementarIteraciones(iteracionesLocales + 1);
 }
 
 unsigned long GestorCatalogo::calcularMemoriaArtistas() const {
     unsigned long memoria = 0;
     ContenedorArtista* actual = inicioArtistas;
+    int iteracionesLocales = 0;
+
     while (actual != nullptr) {
+        iteracionesLocales++;
         memoria += sizeof(ContenedorArtista);
         memoria += sizeof(Artista);
         memoria += actual->contenido->nombre.capacity();
         actual = actual->siguiente;
     }
+
+    incrementarIteraciones(iteracionesLocales);
     return memoria;
 }
 
 unsigned long GestorCatalogo::calcularMemoriaAlbumes() const {
     unsigned long memoria = 0;
     ContenedorAlbum* actual = inicioAlbumes;
+    int iteracionesLocales = 0;
+
     while (actual != nullptr) {
+        iteracionesLocales++;
         memoria += sizeof(ContenedorAlbum);
         memoria += sizeof(Album);
         memoria += actual->contenido->nombre.capacity();
         memoria += actual->contenido->portada.capacity();
         actual = actual->siguiente;
     }
+
+    incrementarIteraciones(iteracionesLocales);
     return memoria;
 }
 
 unsigned long GestorCatalogo::calcularMemoriaCanciones() const {
     unsigned long memoria = 0;
     ContenedorCancion* actual = inicioCanciones;
+    int iteracionesLocales = 0;
+
     while (actual != nullptr) {
+        iteracionesLocales++;
         memoria += sizeof(ContenedorCancion);
         memoria += sizeof(Cancion);
         memoria += actual->contenido->getNombre().capacity();
@@ -449,5 +575,7 @@ unsigned long GestorCatalogo::calcularMemoriaCanciones() const {
         memoria += actual->contenido->obtenerRuta(true).capacity();
         actual = actual->siguiente;
     }
+
+    incrementarIteraciones(iteracionesLocales);
     return memoria;
 }

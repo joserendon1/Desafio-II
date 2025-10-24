@@ -25,6 +25,7 @@ private:
 
     std::mt19937 generadorAleatorio;
 
+    mutable unsigned long iteraciones;
     void mostrarInterfazReproduccion();
     MensajePublicitario* obtenerMensajeAleatorio();
     int generarNumeroAleatorio(int maximo);
@@ -41,6 +42,10 @@ public:
     void cancionAnterior();
     void detenerReproduccion();
     void toggleRepetir();
+
+    unsigned long getIteraciones() const { return iteraciones; }
+    void resetIteraciones() const { iteraciones = 0; }
+    void incrementarIteraciones(int cantidad = 1) const { iteraciones += cantidad; }
 
     bool estaReproduciendo() const { return reproduciendo; }
     Cancion* getCancionActual() const { return cancionActual; }

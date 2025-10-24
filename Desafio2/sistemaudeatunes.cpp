@@ -50,20 +50,31 @@ void SistemaUdeATunes::limpiarMensajes() {
 }
 
 void SistemaUdeATunes::cargarMensajes() {
+    limpiarMensajes();
+
     std::ifstream archivo("datos/mensajes.txt");
     if (!archivo.is_open()) {
+        std::cout << "No se pudo abrir el archivo de mensajes publicitarios." << std::endl;
         return;
     }
 
     std::string linea;
+    int mensajesCargados = 0;
+
     while (std::getline(archivo, linea)) {
         if (linea.empty()) continue;
 
         size_t pos = linea.find_last_of('|');
-        if (pos == std::string::npos) continue;
+        if (pos == std::string::npos) {
+            std::cout << "Formato incorrecto en mensaje: " << linea << std::endl;
+            continue;
+        }
 
         std::string texto = linea.substr(0, pos);
-        char categoria = linea[pos + 1];
+        char categoria = (pos + 1 < linea.length()) ? linea[pos + 1] : 'C';
+
+        texto.erase(0, texto.find_first_not_of(" \t\n\r\f\v"));
+        texto.erase(texto.find_last_not_of(" \t\n\r\f\v") + 1);
 
         MensajePublicitario* nuevoMensaje = new MensajePublicitario(texto, categoria);
 
@@ -80,9 +91,11 @@ void SistemaUdeATunes::cargarMensajes() {
         }
 
         totalMensajes++;
+        mensajesCargados++;
     }
 
     archivo.close();
+    //std::cout << "Mensajes publicitarios cargados: " << mensajesCargados << std::endl;
 }
 
 MensajePublicitario** SistemaUdeATunes::getMensajesArray() const {
@@ -105,29 +118,44 @@ void SistemaUdeATunes::guardarCambios() const {
 }
 
 void SistemaUdeATunes::cargarDatos() {
+    resetIteraciones();
 
     gestorUsuarios->cargarUsuarios();
+    incrementarIteraciones(gestorUsuarios->getIteraciones());
+
     gestorCatalogo->cargarArtistas();
+    incrementarIteraciones(gestorCatalogo->getIteraciones());
+
     gestorCatalogo->cargarAlbumes();
+    incrementarIteraciones(gestorCatalogo->getIteraciones());
+
     gestorCatalogo->cargarCanciones();
+    incrementarIteraciones(gestorCatalogo->getIteraciones());
+
     cargarMensajes();
 
 }
 
 bool SistemaUdeATunes::login() {
+
     std::string nickname;
     std::cout << "Ingrese su nickname: ";
     std::cin >> nickname;
+    incrementarIteraciones();
 
     Usuario* usuario = gestorUsuarios->buscarUsuario(nickname);
+    unsigned long iteracionesBusqueda = gestorUsuarios->getIteraciones();
+    incrementarIteraciones(iteracionesBusqueda + 1);
+
     if (usuario != nullptr) {
         usuarioActual = usuario;
-        std::cout << "¡Bienvenido " << nickname << "!" << std::endl;
-        std::cout << "Membresía: " << usuario->getMembresia() << std::endl;
-
+        std::cout << "Bienvenido " << nickname << std::endl;
+        std::cout << "Membresia: " << usuario->getMembresia() << std::endl;
+        incrementarIteraciones(2);
         return true;
     } else {
         std::cout << "Usuario no encontrado." << std::endl;
+        incrementarIteraciones();
         return false;
     }
 }
@@ -137,20 +165,26 @@ void SistemaUdeATunes::reproducirAleatorio() {
 
     if (gestorCatalogo->getTotalCanciones() == 0) {
         std::cout << "No hay canciones disponibles para reproducir." << std::endl;
+        incrementarIteraciones(2);
         return;
     }
 
     if (usuarioActual == nullptr) {
         std::cout << "Debe iniciar sesion para reproducir musica." << std::endl;
+        incrementarIteraciones(2);
         return;
     }
 
+    incrementarIteraciones(3);
+
     Cancion** cancionesArray = gestorCatalogo->getCancionesArray();
     MensajePublicitario** mensajesArray = getMensajesArray();
+    incrementarIteraciones(2);
 
     if (cancionesArray == nullptr) {
         std::cout << "ERROR: No se pudieron cargar las canciones" << std::endl;
         if (mensajesArray != nullptr) delete[] mensajesArray;
+        incrementarIteraciones(2);
         return;
     }
 
@@ -184,6 +218,85 @@ void SistemaUdeATunes::reproducirAleatorio() {
               << memoriaConsumida / 1024 << " KB)" << std::endl;
 }
 
+void SistemaUdeATunes::reproducirListaFavoritos(bool ordenAleatorio) {
+    resetIteraciones();
+
+    if (usuarioActual == nullptr || !usuarioActual->esPremium()) {
+        std::cout << "Solo usuarios premium pueden reproducir listas de favoritos." << std::endl;
+        incrementarIteraciones(2);
+        return;
+    }
+
+    if (usuarioActual->getListaFavoritos() == nullptr) {
+        std::cout << "No tienes lista de favoritos." << std::endl;
+        incrementarIteraciones(3);
+        return;
+    }
+
+    int totalCancionesFavoritas = usuarioActual->getListaFavoritos()->getTotalCancionesVisibles();
+    if (totalCancionesFavoritas == 0) {
+        std::cout << "Tu lista de favoritos esta vacia." << std::endl;
+        incrementarIteraciones(4);
+        return;
+    }
+
+    incrementarIteraciones(4);
+
+    Cancion** cancionesFavoritas = usuarioActual->getListaFavoritos()->getCancionesConSeguidas(ordenAleatorio);
+    MensajePublicitario** mensajesArray = getMensajesArray();
+
+    if (cancionesFavoritas == nullptr) {
+        std::cout << "Error al cargar las canciones de favoritos." << std::endl;
+        if (mensajesArray != nullptr) delete[] mensajesArray;
+        incrementarIteraciones(5);
+        return;
+    }
+
+    std::cout << "\n==========================================" << std::endl;
+    std::cout << "       REPRODUCIENDO LISTA DE FAVORITOS" << std::endl;
+    std::cout << "==========================================" << std::endl;
+    std::cout << "Total de canciones: " << totalCancionesFavoritas << std::endl;
+    std::cout << " - Propias: " << usuarioActual->getListaFavoritos()->getTotalCanciones() << std::endl;
+    std::cout << " - Seguidas: " << (usuarioActual->getListaFavoritos()->estaSiguiendoLista() ?
+                                         usuarioActual->getListaFavoritos()->getTotalCancionesVisibles() -
+                                             usuarioActual->getListaFavoritos()->getTotalCanciones() : 0) << std::endl;
+    std::cout << "Modo: " << (ordenAleatorio ? "Aleatorio" : "Orden original") << std::endl;
+    std::cout << "==========================================" << std::endl;
+
+    if (reproductor == nullptr) {
+        reproductor = new Reproductor(
+            cancionesFavoritas,
+            totalCancionesFavoritas,
+            mensajesArray,
+            totalMensajes,
+            usuarioActual
+            );
+    } else {
+        reproductor->actualizarDatos(
+            cancionesFavoritas,
+            totalCancionesFavoritas,
+            mensajesArray,
+            totalMensajes,
+            usuarioActual
+            );
+    }
+
+    reproductor->reproducirAleatorio();
+
+    unsigned long iteracionesFavoritos = usuarioActual->getListaFavoritos()->getIteraciones();
+    incrementarIteraciones(iteracionesFavoritos + 5);
+
+    std::cout << "\n--- METRICAS DE EFICIENCIA ---" << std::endl;
+    std::cout << "Iteraciones realizadas: " << getTotalIteraciones() << std::endl;
+    std::cout << " - Sistema: " << totalIteraciones - iteracionesFavoritos << std::endl;
+    std::cout << " - ListaFavoritos: " << iteracionesFavoritos << std::endl;
+    calcularMemoria();
+    std::cout << "Memoria consumida: " << memoriaConsumida << " bytes ("
+              << memoriaConsumida / 1024 << " KB)" << std::endl;
+
+    delete[] cancionesFavoritas;
+}
+
 void SistemaUdeATunes::mostrarMetricas() const {
     std::cout << "\n==========================================" << std::endl;
     std::cout << "          METRICAS DEL SISTEMA" << std::endl;
@@ -205,29 +318,37 @@ Cancion* SistemaUdeATunes::buscarCancion(int id) const {
 }
 
 void SistemaUdeATunes::mostrarCancionesDisponibles() const {
+    resetIteraciones();
+
     int totalCanciones = gestorCatalogo->getTotalCanciones();
+    incrementarIteraciones();
 
     Cancion** cancionesArray = gestorCatalogo->getCancionesArray();
+    unsigned long iteracionesArray = gestorCatalogo->getIteraciones();
+    incrementarIteraciones(iteracionesArray + 1);
 
     std::cout << "\n==========================================" << std::endl;
     std::cout << "          CATALOGO DE CANCIONES" << std::endl;
     std::cout << "==========================================" << std::endl;
     std::cout << "Total de canciones: " << totalCanciones << std::endl;
     std::cout << "------------------------------------------" << std::endl;
+    incrementarIteraciones(5);
 
     for (int i = 0; i < totalCanciones; i++) {
         std::cout << "ID: " << cancionesArray[i]->getId()
         << " | " << cancionesArray[i]->getNombre()
         << " - " << cancionesArray[i]->getAlbum()->artista->nombre << std::endl;
+        incrementarIteraciones();
     }
 
     std::cout << "==========================================" << std::endl;
+    incrementarIteraciones();
 
     delete[] cancionesArray;
 }
 
 bool SistemaUdeATunes::agregarCancionAFavoritos(int idCancion) {
-    totalIteraciones = 0;
+    resetIteraciones(); // Solo resetear al inicio de esta operación
 
     if (usuarioActual == nullptr || !usuarioActual->esPremium()) {
         std::cout << "Solo usuarios premium pueden tener listas de favoritos." << std::endl;
@@ -235,26 +356,30 @@ bool SistemaUdeATunes::agregarCancionAFavoritos(int idCancion) {
         return false;
     }
 
-    incrementarIteraciones(2);
+    incrementarIteraciones(2); // Verificación de usuario
 
     Cancion* cancion = gestorCatalogo->buscarCancion(idCancion);
+    unsigned long iteracionesBusqueda = gestorCatalogo->getIteraciones();
+    incrementarIteraciones(iteracionesBusqueda + 1);
+
     if (cancion == nullptr) {
-        std::cout << "Canción no encontrada." << std::endl;
+        std::cout << "Cancion no encontrada." << std::endl;
         incrementarIteraciones();
         return false;
     }
 
-    incrementarIteraciones();
+    incrementarIteraciones(); // Canción encontrada
 
     bool resultado = usuarioActual->getListaFavoritos()->agregarCancion(cancion);
     unsigned long iteracionesFavoritos = usuarioActual->getListaFavoritos()->getIteraciones();
     incrementarIteraciones(iteracionesFavoritos);
 
     if (resultado) {
-        std::cout << "Canción agregada a favoritos: " << cancion->getNombre() << std::endl;
+        std::cout << "Cancion agregada a favoritos: " << cancion->getNombre() << std::endl;
         incrementarIteraciones();
     } else {
-        std::cout << "La canción ya está en favoritos o la lista está llena." << std::endl;
+        std::cout << "La cancion ya esta en favoritos o la lista esta llena." << std::endl;
+        incrementarIteraciones();
     }
 
     std::cout << "\n--- METRICAS DE EFICIENCIA ---" << std::endl;
@@ -326,7 +451,8 @@ void SistemaUdeATunes::resetIteraciones() const {
 }
 
 unsigned long SistemaUdeATunes::getTotalIteraciones() const {
-    return totalIteraciones + gestorUsuarios->getIteraciones() + gestorCatalogo->getIteraciones();
+    unsigned long totalReproductor = (reproductor != nullptr) ? reproductor->getIteraciones() : 0;
+    return totalIteraciones + gestorUsuarios->getIteraciones() + gestorCatalogo->getIteraciones() + totalReproductor;
 }
 
 unsigned long SistemaUdeATunes::calcularMemoriaMensajes() const {
@@ -391,15 +517,28 @@ void SistemaUdeATunes::calcularMemoria() const {
 void SistemaUdeATunes::mostrarMetricasEficiencia() const {
     calcularMemoria();
 
+    unsigned long totalGestorUsuarios = gestorUsuarios->getIteraciones();
+    unsigned long totalGestorCatalogo = gestorCatalogo->getIteraciones();
+    unsigned long totalSistema = totalIteraciones;
+    unsigned long totalReproductor = (reproductor != nullptr) ? reproductor->getIteraciones() : 0;
+
     std::cout << "\n==========================================" << std::endl;
     std::cout << "          METRICAS DE EFICIENCIA" << std::endl;
     std::cout << "==========================================" << std::endl;
     std::cout << "Total de iteraciones: " << getTotalIteraciones() << std::endl;
-    std::cout << " - GestorUsuarios: " << gestorUsuarios->getIteraciones() << std::endl;
-    std::cout << " - GestorCatalogo: " << gestorCatalogo->getIteraciones() << std::endl;
-    std::cout << " - Sistema: " << totalIteraciones << std::endl;
+    std::cout << " - GestorUsuarios: " << totalGestorUsuarios << std::endl;
+    std::cout << " - GestorCatalogo: " << totalGestorCatalogo << std::endl;
+    std::cout << " - Sistema: " << totalSistema << std::endl;
+    std::cout << " - Reproductor: " << totalReproductor << std::endl;
     std::cout << "Memoria consumida: " << memoriaConsumida << " bytes" << std::endl;
     std::cout << "Aproximadamente: " << memoriaConsumida / 1024 << " KB" << std::endl;
     std::cout << "Aproximadamente: " << memoriaConsumida / (1024 * 1024) << " MB" << std::endl;
+
+    std::cout << "------------------------------------------" << std::endl;
+    std::cout << "Usuarios en sistema: " << gestorUsuarios->getTotalUsuarios() << std::endl;
+    std::cout << "Canciones en sistema: " << gestorCatalogo->getTotalCanciones() << std::endl;
+    std::cout << "Artistas en sistema: " << gestorCatalogo->getTotalArtistas() << std::endl;
+    std::cout << "Albumes en sistema: " << gestorCatalogo->getTotalAlbumes() << std::endl;
+    std::cout << "Mensajes publicitarios: " << totalMensajes << std::endl;
     std::cout << "==========================================" << std::endl;
 }

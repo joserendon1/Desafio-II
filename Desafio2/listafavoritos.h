@@ -19,7 +19,6 @@ private:
     mutable unsigned long iteraciones;
 
     int getTotalCancionesSeguidas() const;
-    int getTotalCancionesVisibles() const;
 
 public:
     ListaFavoritos(Usuario* usuario);
@@ -29,7 +28,9 @@ public:
     bool eliminarCancion(int idCancion);
     bool contieneCancion(int idCancion) const;
 
-    void reproducir(bool ordenAleatorio) const;
+    Cancion** getCancionesConSeguidas(bool ordenAleatorio = false) const;
+    int getTotalCancionesVisibles() const;
+
     void seguirLista(ListaFavoritos* otraLista);
     void dejarDeSeguirLista();
     void mostrarLista() const;
@@ -43,7 +44,6 @@ public:
     void resetIteraciones() const { iteraciones = 0; }
     void incrementarIteraciones(int cantidad = 1) const { iteraciones += cantidad; }
     unsigned long calcularMemoria() const;
-
 };
 
 #endif

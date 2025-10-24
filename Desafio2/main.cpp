@@ -22,6 +22,7 @@ void mostrarMenuPrincipal() {
 }
 
 void mostrarMenuUsuario(SistemaUdeATunes& sistema) {
+
     std::cout << "\n==========================================" << std::endl;
     std::cout << "      MENU PRINCIPAL - UdeATunes" << std::endl;
     std::cout << "==========================================" << std::endl;
@@ -41,6 +42,7 @@ void mostrarMenuUsuario(SistemaUdeATunes& sistema) {
     std::cout << "------------------------------------------" << std::endl;
     std::cout << "Seleccione una opcion: ";
 }
+
 void menuGestionarFavoritos(SistemaUdeATunes& sistema) {
     int opcion;
     do {
@@ -94,7 +96,7 @@ void menuGestionarFavoritos(SistemaUdeATunes& sistema) {
                 bool aleatorio;
                 std::cin >> aleatorio;
                 limpiarBuffer();
-                sistema.getUsuarioActual()->getListaFavoritos()->reproducir(aleatorio);
+                sistema.reproducirListaFavoritos(aleatorio);
             }
             break;
         case 5:
@@ -137,11 +139,15 @@ int main() {
                     sesionActiva = true;
                 }
                 break;
+
             case 2:
                 sistema.mostrarMetricas();
+                sistema.incrementarIteraciones(1);
                 break;
+
             case 3:
                 sistema.mostrarMetricasEficiencia();
+                sistema.incrementarIteraciones(1);
                 break;
             case 4:
                 programaActivo = false;

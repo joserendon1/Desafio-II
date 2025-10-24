@@ -40,6 +40,7 @@ public:
     void cargarDatos();
     bool login();
     void reproducirAleatorio();
+    void reproducirListaFavoritos(bool ordenAleatorio);
     void mostrarMetricas() const;
 
     Usuario* buscarUsuario(const std::string& nickname) const;
