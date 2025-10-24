@@ -6,13 +6,16 @@ class Cancion;
 
 class ListaFavoritos {
 private:
-    Cancion** canciones;
+    struct ContenedorCancionFavorita {
+        Cancion* contenido;
+        ContenedorCancionFavorita* siguiente;
+        ContenedorCancionFavorita(Cancion* c) : contenido(c), siguiente(nullptr) {}
+    };
+
+    ContenedorCancionFavorita* inicio;
     int totalCanciones;
-    int capacidad;
     Usuario* usuario;
     ListaFavoritos* listaSeguida;
-
-    void redimensionar();
 
 public:
     ListaFavoritos(Usuario* usuario);
@@ -27,20 +30,16 @@ public:
     void dejarDeSeguirLista();
     void mostrarLista() const;
 
-    int getTotalCancionesPropias() const { return totalCanciones; }
+    int getTotalCanciones() const { return totalCanciones; }
     int getTotalCancionesSeguidas() const;
     int getTotalCancionesVisibles() const;
     Cancion* obtenerCancion(int index) const;
 
-    Cancion* obtenerCancionSeguida(int index) const;
-
     ListaFavoritos* getListaSeguida() const { return listaSeguida; }
     bool estaSiguiendoLista() const { return listaSeguida != nullptr; }
 
-    int getTotalCanciones() const { return totalCanciones; }
-    int getCapacidad() const { return capacidad; }
     Usuario* getUsuario() const { return usuario; }
-    Cancion** getCanciones() const { return canciones; }
+    Cancion** getCancionesArray() const;
 };
 
 #endif

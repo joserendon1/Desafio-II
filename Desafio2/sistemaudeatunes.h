@@ -12,9 +12,14 @@ private:
     GestorUsuarios* gestorUsuarios;
     GestorCatalogo* gestorCatalogo;
 
-    MensajePublicitario** mensajes;
+    struct ContenedorMensaje {
+        MensajePublicitario* contenido;
+        ContenedorMensaje* siguiente;
+        ContenedorMensaje(MensajePublicitario* m) : contenido(m), siguiente(nullptr) {}
+    };
+
+    ContenedorMensaje* inicioMensajes;
     int totalMensajes;
-    int capacidadMensajes;
 
     Usuario* usuarioActual;
     Reproductor* reproductor;
@@ -22,9 +27,9 @@ private:
     mutable unsigned long totalIteraciones;
     mutable unsigned long memoriaConsumida;
 
-    void redimensionarMensajes();
     void cargarMensajes();
     void guardarCambios() const;
+    void limpiarMensajes();
 
 public:
     SistemaUdeATunes();
@@ -48,8 +53,10 @@ public:
     int getTotalArtistas() const { return gestorCatalogo->getTotalArtistas(); }
     int getTotalAlbumes() const { return gestorCatalogo->getTotalAlbumes(); }
     int getTotalMensajes() const { return totalMensajes; }
-    Cancion** getCanciones() const { return gestorCatalogo->getCanciones(); }
-    MensajePublicitario** getMensajes() const { return mensajes; }
+
+    Cancion** getCanciones() const { return gestorCatalogo->getCancionesArray(); }
+    MensajePublicitario** getMensajesArray() const;
+    MensajePublicitario** getMensajes() const { return getMensajesArray(); }
 
     void setUsuarioActual(Usuario* usuario) { usuarioActual = usuario; }
     void mostrarCancionesDisponibles() const;

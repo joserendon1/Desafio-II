@@ -8,18 +8,36 @@
 
 class GestorCatalogo {
 private:
-    Artista** artistas;
-    Album** albumes;
-    Cancion** canciones;
+    struct ContenedorArtista {
+        Artista* contenido;
+        ContenedorArtista* siguiente;
+        ContenedorArtista(Artista* a) : contenido(a), siguiente(nullptr) {}
+    };
+
+    struct ContenedorAlbum {
+        Album* contenido;
+        ContenedorAlbum* siguiente;
+        ContenedorAlbum(Album* a) : contenido(a), siguiente(nullptr) {}
+    };
+
+    struct ContenedorCancion {
+        Cancion* contenido;
+        ContenedorCancion* siguiente;
+        ContenedorCancion(Cancion* c) : contenido(c), siguiente(nullptr) {}
+    };
+
+    ContenedorArtista* inicioArtistas;
+    ContenedorAlbum* inicioAlbumes;
+    ContenedorCancion* inicioCanciones;
+
     int totalArtistas;
     int totalAlbumes;
     int totalCanciones;
-    int capacidad;
     mutable unsigned long iteraciones;
 
-    void redimensionarArtistas();
-    void redimensionarAlbumes();
-    void redimensionarCanciones();
+    void limpiarArtistas();
+    void limpiarAlbumes();
+    void limpiarCanciones();
 
     bool agregarArtista(Artista* artista);
     bool agregarAlbum(Album* album);
@@ -41,9 +59,11 @@ public:
     int getTotalArtistas() const { return totalArtistas; }
     int getTotalAlbumes() const { return totalAlbumes; }
     int getTotalCanciones() const { return totalCanciones; }
-    Artista** getArtistas() const { return artistas; }
-    Album** getAlbumes() const { return albumes; }
-    Cancion** getCanciones() const { return canciones; }
+
+    Artista** getArtistasArray() const;
+    Album** getAlbumesArray() const;
+    Cancion** getCancionesArray() const;
+
     unsigned long getIteraciones() const { return iteraciones; }
     void incrementarIteraciones(int cantidad = 1) const { iteraciones += cantidad; }
 

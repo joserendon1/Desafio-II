@@ -4,30 +4,23 @@
 #include <sstream>
 
 GestorUsuarios::GestorUsuarios()
-    : usuarios(nullptr), totalUsuarios(0), capacidad(10), iteraciones(0) {
-    usuarios = new Usuario*[capacidad];
-}
+    : inicio(nullptr), final(nullptr), totalUsuarios(0), iteraciones(0) {}
 
 GestorUsuarios::~GestorUsuarios() {
-    for (int i = 0; i < totalUsuarios; i++) {
-        delete usuarios[i];
-    }
-    delete[] usuarios;
+    limpiarUsuarios();
 }
 
-void GestorUsuarios::redimensionar() {
-    int nuevaCapacidad = capacidad * 2;
-    Usuario** nuevoArray = new Usuario*[nuevaCapacidad];
-
-    for (int i = 0; i < totalUsuarios; i++) {
-        nuevoArray[i] = usuarios[i];
+void GestorUsuarios::limpiarUsuarios() {
+    ContenedorUsuario* actual = inicio;
+    while (actual != nullptr) {
+        ContenedorUsuario* siguiente = actual->siguiente;
+        delete actual->contenido;
+        delete actual;
+        actual = siguiente;
     }
-
-    delete[] usuarios;
-    usuarios = nuevoArray;
-    capacidad = nuevaCapacidad;
-
-    std::cout << "🔧 GestorUsuarios redimensionado: " << capacidad/2 << " → " << capacidad << std::endl;
+    inicio = nullptr;
+    final = nullptr;
+    totalUsuarios = 0;
 }
 
 bool GestorUsuarios::agregarUsuario(Usuario* usuario) {
@@ -37,24 +30,47 @@ bool GestorUsuarios::agregarUsuario(Usuario* usuario) {
         return false;
     }
 
-    if (totalUsuarios >= capacidad) {
-        redimensionar();
+    ContenedorUsuario* nuevoContenedor = new ContenedorUsuario(usuario);
+
+    if (inicio == nullptr) {
+        inicio = nuevoContenedor;
+        final = nuevoContenedor;
+    } else {
+        final->siguiente = nuevoContenedor;
+        final = nuevoContenedor;
     }
 
-    usuarios[totalUsuarios++] = usuario;
+    totalUsuarios++;
     return true;
 }
 
 Usuario* GestorUsuarios::buscarUsuario(const std::string& nickname) const {
     incrementarIteraciones();
 
-    for (int i = 0; i < totalUsuarios; i++) {
+    ContenedorUsuario* actual = inicio;
+    while (actual != nullptr) {
         incrementarIteraciones();
-        if (usuarios[i]->getNickname() == nickname) {
-            return usuarios[i];
+        if (actual->contenido->getNickname() == nickname) {
+            return actual->contenido;
         }
+        actual = actual->siguiente;
     }
     return nullptr;
+}
+
+Usuario** GestorUsuarios::getUsuariosArray() const {
+    if (totalUsuarios == 0) return nullptr;
+
+    Usuario** array = new Usuario*[totalUsuarios];
+    ContenedorUsuario* actual = inicio;
+    int index = 0;
+
+    while (actual != nullptr) {
+        array[index++] = actual->contenido;
+        actual = actual->siguiente;
+    }
+
+    return array;
 }
 
 void GestorUsuarios::cargarUsuarios() {
@@ -75,17 +91,8 @@ void GestorUsuarios::cargarUsuarios() {
         std::getline(ss, membresia, '|');
 
         Usuario* nuevoUsuario = new Usuario(nickname, membresia);
-
         agregarUsuario(nuevoUsuario);
     }
 
     archivo.close();
-    std::cout << "Usuarios cargados: " << totalUsuarios << std::endl;
-}
-
-void GestorUsuarios::limpiarUsuarios() {
-    for (int i = 0; i < totalUsuarios; i++) {
-        delete usuarios[i];
-    }
-    totalUsuarios = 0;
 }

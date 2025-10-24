@@ -6,27 +6,31 @@
 
 class GestorUsuarios {
 private:
-    Usuario** usuarios;
-    int totalUsuarios;
-    int capacidad;
-    mutable unsigned long iteraciones;
+    struct ContenedorUsuario {
+        Usuario* contenido;
+        ContenedorUsuario* siguiente;
+        ContenedorUsuario(Usuario* u) : contenido(u), siguiente(nullptr) {}
+    };
 
-    void redimensionar();
-    bool agregarUsuario(Usuario* usuario);
+    ContenedorUsuario* inicio;
+    ContenedorUsuario* final;
+    int totalUsuarios;
+    mutable unsigned long iteraciones;
 
 public:
     GestorUsuarios();
     ~GestorUsuarios();
 
     Usuario* buscarUsuario(const std::string& nickname) const;
-
+    bool agregarUsuario(Usuario* usuario);
     void cargarUsuarios();
+
     int getTotalUsuarios() const { return totalUsuarios; }
-    Usuario** getUsuarios() const { return usuarios; }
+    Usuario** getUsuariosArray() const;
     unsigned long getIteraciones() const { return iteraciones; }
     void incrementarIteraciones(int cantidad = 1) const { iteraciones += cantidad; }
 
-    void limpiarUsuarios();  // MANTENER (se usa en destructor)
+    void limpiarUsuarios();
 };
 
 #endif

@@ -34,36 +34,43 @@ void Reproductor::mostrarInterfazReproduccion() {
     if (!usuarioActual->esPremium() && contadorCancionesReproducidas % 2 == 0 && totalMensajes > 0) {
         MensajePublicitario* mensaje = obtenerMensajeAleatorio();
         if (mensaje != nullptr) {
-            std::cout << "\n\"Mensaje publicitario\" (Si aplica)" << std::endl;
-            std::cout << "Categoria del mensaje (Si aplica): " << mensaje->categoria << std::endl;
+            std::cout << "\n--- MENSAJE PUBLICITARIO ---" << std::endl;
+            std::cout << "Categoria: ";
+
+            if (mensaje->categoria == 'A') {
+                std::cout << "AAA";
+            } else if (mensaje->categoria == 'B') {
+                std::cout << "B";
+            } else {
+                std::cout << "C";
+            }
             std::cout << std::endl;
+
             std::cout << "\"" << mensaje->texto << "\"" << std::endl;
-            std::cout << std::endl;
-            std::cout << "Publicidad en progreso..." << std::endl;
+            std::cout << "Mostrando publicidad..." << std::endl;
+
             auto start = std::chrono::steady_clock::now();
             while (std::chrono::steady_clock::now() - start < std::chrono::seconds(2)) {}
         }
     }
 
-    std::cout << "\n";
-    std::cout << "Cantante: " << cancionActual->getAlbum()->artista->nombre << std::endl;
+    std::cout << "\n--- REPRODUCIENDO ---" << std::endl;
+    std::cout << "Artista: " << cancionActual->getAlbum()->artista->nombre << std::endl;
     std::cout << "Album: " << cancionActual->getAlbum()->nombre << std::endl;
-    std::cout << "Ruta a la portada del album: " << cancionActual->getAlbum()->portada << std::endl;
-    std::cout << std::endl;
-    std::cout << "Titulo de la cancion reproducida: " << cancionActual->getNombre() << std::endl;
-    std::cout << "Ruta al archivo de audio: " << cancionActual->obtenerRuta(usuarioActual->esPremium()) << std::endl;
+    std::cout << "Portada: " << cancionActual->getAlbum()->portada << std::endl;
+    std::cout << "Cancion: " << cancionActual->getNombre() << std::endl;
+    std::cout << "Audio: " << cancionActual->obtenerRuta(usuarioActual->esPremium()) << std::endl;
     std::cout << "Duracion: " << cancionActual->getDuracion() << " minutos" << std::endl;
-    std::cout << std::endl;
+    std::cout << "---------------------" << std::endl;
 
-    std::cout << "Opciones de reproduccion:" << std::endl;
-    std::cout << "1.- Reproducir  2.- Detener";
+    std::cout << "Opciones:" << std::endl;
+    std::cout << "1. Reproducir  2. Detener";
 
     if (usuarioActual->esPremium()) {
-        std::cout << "  3.- Siguiente  4.- Anterior  5.- " << (modoRepetir ? "Desactivar" : "Activar") << " repetir";
+        std::cout << "  3. Siguiente  4. Anterior  5. " << (modoRepetir ? "Desactivar" : "Activar") << " repetir";
     }
 
     std::cout << std::endl;
-    std::cout << "*Todas las opciones que apliquen" << std::endl;
     std::cout << "Seleccione una opcion: ";
 }
 
