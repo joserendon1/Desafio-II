@@ -9,6 +9,11 @@
 
 class Reproductor {
 private:
+    static const int TAMANO_HISTORIAL = 5;
+    Cancion* historial[TAMANO_HISTORIAL];
+    int cantidadHistorial;
+    int indiceUltima;
+
     Cancion** todasLasCanciones;
     MensajePublicitario** todosLosMensajes;
     int totalCanciones;
@@ -19,16 +24,20 @@ private:
     int indiceActual;
     bool reproduciendo;
     bool modoRepetir;
-    Cancion* historial[4];
-    int indiceHistorial;
+
     int contadorCancionesReproducidas;
 
     std::mt19937 generadorAleatorio;
 
     mutable unsigned long iteraciones;
+
     void mostrarInterfazReproduccion();
     MensajePublicitario* obtenerMensajeAleatorio();
     int generarNumeroAleatorio(int maximo);
+
+    void agregarAlHistorial(Cancion* cancion);
+    Cancion* obtenerCancionAnterior();
+    bool retrocederEnHistorial();
 
 public:
     Reproductor(Cancion** canciones, int totalCanc, MensajePublicitario** mensajes, int totalMsg, Usuario* usuario);

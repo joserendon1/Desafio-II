@@ -6,6 +6,7 @@
 #include "MensajePublicitario.h"
 #include <iostream>
 #include <chrono>
+#include <limits>
 
 Reproductor::Reproductor(Cancion** canciones, int totalCanc, MensajePublicitario** mensajes, int totalMsg, Usuario* usuario)
     : todasLasCanciones(canciones),
@@ -17,19 +18,18 @@ Reproductor::Reproductor(Cancion** canciones, int totalCanc, MensajePublicitario
     indiceActual(-1),
     reproduciendo(false),
     modoRepetir(false),
-    indiceHistorial(0),
+    cantidadHistorial(0),
+    indiceUltima(-1),
     contadorCancionesReproducidas(0),
     iteraciones(0)
 {
-    for (int i = 0; i < 4; i++) {
+    for (int i = 0; i < TAMANO_HISTORIAL; i++) {
         historial[i] = nullptr;
-        incrementarIteraciones();
     }
 
     auto ahora = std::chrono::steady_clock::now();
     auto semilla = ahora.time_since_epoch().count();
     generadorAleatorio.seed(static_cast<unsigned int>(semilla));
-    incrementarIteraciones(3);
 }
 
 int Reproductor::generarNumeroAleatorio(int maximo) {
@@ -133,6 +133,58 @@ MensajePublicitario* Reproductor::obtenerMensajeAleatorio() {
     return todosLosMensajes[mensajeIndex];
 }
 
+void Reproductor::agregarAlHistorial(Cancion* cancion) {
+    if (!usuarioActual->esPremium() || cancion == nullptr) return;
+
+    if (cantidadHistorial > 0 && historial[indiceUltima] == cancion) {
+        return;
+    }
+    if (cantidadHistorial == TAMANO_HISTORIAL) {
+        for (int i = 0; i < TAMANO_HISTORIAL - 1; i++) {
+            historial[i] = historial[i + 1];
+        }
+        historial[TAMANO_HISTORIAL - 1] = cancion;
+        indiceUltima = TAMANO_HISTORIAL - 1;
+    } else {
+        historial[cantidadHistorial] = cancion;
+        indiceUltima = cantidadHistorial;
+        cantidadHistorial++;
+    }
+
+    std::cout << "Agregada al historial: '" << cancion->getNombre()
+              << "' en posicion " << indiceUltima
+              << " (total en historial: " << cantidadHistorial << ")" << std::endl;
+
+    std::cout << "Estado historial: ";
+    for (int i = 0; i < TAMANO_HISTORIAL; i++) {
+        if (i < cantidadHistorial) {
+            std::cout << "[" << i << "]:" << historial[i]->getNombre().substr(0, 8);
+            if (i == indiceUltima) std::cout << "(ULTIMA)";
+            std::cout << " ";
+        } else {
+            std::cout << "[" << i << "]:VACIO ";
+        }
+    }
+    std::cout << std::endl;
+}
+
+Cancion* Reproductor::obtenerCancionAnterior() {
+    if (cantidadHistorial == 0 || indiceUltima <= 0) {
+        return nullptr;
+    }
+    return historial[indiceUltima - 1];
+}
+
+bool Reproductor::retrocederEnHistorial() {
+    if (cantidadHistorial == 0 || indiceUltima <= 0) {
+        return false;
+    }
+    indiceUltima--;
+
+    std::cout << "Retrocediendo. Nueva ultima: " << indiceUltima << std::endl;
+    return true;
+}
+
 void Reproductor::actualizarDatos(Cancion** canciones, int totalCanc, MensajePublicitario** mensajes, int totalMsg, Usuario* usuario) {
     resetIteraciones();
 
@@ -146,10 +198,11 @@ void Reproductor::actualizarDatos(Cancion** canciones, int totalCanc, MensajePub
     this->indiceActual = -1;
     this->reproduciendo = false;
     this->modoRepetir = false;
-    this->indiceHistorial = 0;
+    this->cantidadHistorial = 0;
+    this->indiceUltima = -1;
     this->contadorCancionesReproducidas = 0;
 
-    for (int i = 0; i < 4; i++) {
+    for (int i = 0; i < TAMANO_HISTORIAL; i++) {
         this->historial[i] = nullptr;
         incrementarIteraciones();
     }
@@ -179,72 +232,36 @@ void Reproductor::reproducirAleatorio() {
     std::cout << "Se reproduciran " << LIMITE_CANCIONES_PRUEBA << " canciones (modo prueba)" << std::endl;
     incrementarIteraciones(5);
 
-    for (int i = 0; i < LIMITE_CANCIONES_PRUEBA && reproduciendo; i++) {
+    int cancionesReproducidas = 0;
+    bool esCancionNueva = true;
+
+    while (reproduciendo && cancionesReproducidas < LIMITE_CANCIONES_PRUEBA) {
         incrementarIteraciones();
 
-        indiceActual = generarNumeroAleatorio(totalCanciones);
-        incrementarIteraciones(getIteraciones());
+        if (esCancionNueva) {
+            indiceActual = generarNumeroAleatorio(totalCanciones);
+            incrementarIteraciones(getIteraciones());
 
-        if (indiceActual < 0 || indiceActual >= totalCanciones) {
-            std::cout << "ERROR: Indice de cancion invalido: " << indiceActual << std::endl;
-            reproduciendo = false;
-            incrementarIteraciones(2);
-            break;
-        }
-
-        cancionActual = todasLasCanciones[indiceActual];
-        incrementarIteraciones();
-
-        if (cancionActual == nullptr) {
-            std::cout << "ERROR: Cancion actual es nula en indice " << indiceActual << std::endl;
-            reproduciendo = false;
-            incrementarIteraciones(2);
-            break;
-        }
-
-        if (cancionActual->getAlbum() == nullptr) {
-            std::cout << "ERROR: Cancion sin album: " << cancionActual->getNombre() << std::endl;
-            reproduciendo = false;
-            incrementarIteraciones(2);
-            break;
-        }
-
-        if (cancionActual->getAlbum()->artista == nullptr) {
-            std::cout << "ERROR: Album sin artista: " << cancionActual->getAlbum()->nombre << std::endl;
-            reproduciendo = false;
-            incrementarIteraciones(2);
-            break;
-        }
-
-        if (usuarioActual->esPremium()) {
-            historial[indiceHistorial % 4] = cancionActual;
-            indiceHistorial++;
-            incrementarIteraciones(2);
-        }
-
-        if (!usuarioActual->esPremium() && contadorCancionesReproducidas > 0 && contadorCancionesReproducidas % 2 == 0) {
-            MensajePublicitario* mensaje = obtenerMensajeAleatorio();
-            incrementarIteraciones();
-
-            if (mensaje != nullptr) {
-                std::cout << "\n==========================================" << std::endl;
-                std::cout << "\"" << mensaje->texto << "\"" << std::endl;
-                std::cout << "Categoria del mensaje: ";
-
-                if (mensaje->categoria == 'A') {
-                    std::cout << "AAA";
-                } else {
-                    std::cout << mensaje->categoria;
-                }
-                std::cout << std::endl;
-                std::cout << "==========================================" << std::endl;
-
-                auto start = std::chrono::steady_clock::now();
-                while (std::chrono::steady_clock::now() - start < std::chrono::seconds(2)) {
-                }
-                incrementarIteraciones(10);
+            if (indiceActual < 0 || indiceActual >= totalCanciones) {
+                std::cout << "ERROR: Indice de cancion invalido: " << indiceActual << std::endl;
+                reproduciendo = false;
+                incrementarIteraciones(2);
+                break;
             }
+
+            cancionActual = todasLasCanciones[indiceActual];
             incrementarIteraciones();
+
+            if (cancionActual == nullptr) {
+                std::cout << "ERROR: Cancion actual es nula en indice " << indiceActual << std::endl;
+                reproduciendo = false;
+                incrementarIteraciones(2);
+                break;
+            }
+
+            if (usuarioActual->esPremium()) {
+                agregarAlHistorial(cancionActual);
+            }
         }
 
         mostrarInterfazReproduccion();
@@ -254,15 +271,8 @@ void Reproductor::reproducirAleatorio() {
         std::cin >> opcion;
         incrementarIteraciones();
 
-        if (std::cin.fail()) {
-            std::cin.clear();
-            char c;
-            while (std::cin.get(c) && c != '\n') {
-            }
-            std::cout << "Entrada invalida. Continuando..." << std::endl;
-            opcion = 1;
-            incrementarIteraciones(3);
-        }
+        std::cin.clear();
+        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 
         bool cancionReproducida = false;
 
@@ -279,72 +289,70 @@ void Reproductor::reproducirAleatorio() {
             cancionActual->incrementarReproducciones();
             contadorCancionesReproducidas++;
             cancionReproducida = true;
+            cancionesReproducidas++;
+
+            std::cout << "Progreso: " << cancionesReproducidas << "/" << LIMITE_CANCIONES_PRUEBA << " canciones" << std::endl;
+
+            if (usuarioActual->esPremium() && esCancionNueva) {
+                agregarAlHistorial(cancionActual);
+            }
             incrementarIteraciones(5);
             break;
 
         case 2:
-            if (reproduciendo) {
-                reproduciendo = false;
-                std::cout << "Reproduccion detenida." << std::endl;
-                incrementarIteraciones(2);
-            } else {
-                std::cout << "No hay reproduccion en curso para detener." << std::endl;
-                i--;
-                incrementarIteraciones(2);
-            }
+            reproduciendo = false;
+            std::cout << "Reproduccion detenida." << std::endl;
+            incrementarIteraciones(2);
             break;
 
         case 3:
             if (usuarioActual->esPremium()) {
-                if (reproduciendo) {
-                    std::cout << "Saltando a siguiente cancion..." << std::endl;
-                    incrementarIteraciones();
-                } else {
-                    std::cout << "No hay reproduccion en curso." << std::endl;
-                    i--;
-                    incrementarIteraciones(2);
-                }
+                std::cout << "Saltando a siguiente cancion..." << std::endl;
+                esCancionNueva = true;
+                incrementarIteraciones();
             } else {
                 std::cout << "Opcion no disponible para usuarios estandar." << std::endl;
-                i--;
                 incrementarIteraciones(2);
             }
             break;
 
         case 4:
             if (usuarioActual->esPremium()) {
-                if (reproduciendo && indiceHistorial > 1) {
-                    cancionAnterior();
-                    incrementarIteraciones(getIteraciones());
-                    i--;
-                    incrementarIteraciones(2);
+                if (cantidadHistorial > 1 && indiceUltima > 0) {
+                    Cancion* cancionAnterior = obtenerCancionAnterior();
+                    if (cancionAnterior != nullptr) {
+                        cancionActual = cancionAnterior;
+                        retrocederEnHistorial();
+
+                        std::cout << ">>> Retrocediendo a cancion anterior: " << cancionActual->getNombre() << std::endl;
+
+                        esCancionNueva = false;
+
+                    } else {
+                        std::cout << "No hay canciones anteriores disponibles." << std::endl;
+                        esCancionNueva = true;
+                    }
                 } else {
                     std::cout << "No hay canciones anteriores disponibles." << std::endl;
-                    i--;
-                    incrementarIteraciones(2);
+                    esCancionNueva = true;
                 }
+                incrementarIteraciones(5);
             } else {
                 std::cout << "Opcion no disponible para usuarios estandar." << std::endl;
-                i--;
                 incrementarIteraciones(2);
             }
             break;
 
         case 5:
             if (usuarioActual->esPremium()) {
-                if (reproduciendo) {
-                    toggleRepetir();
-                    incrementarIteraciones(getIteraciones());
-                    i--;
-                    incrementarIteraciones();
-                } else {
-                    std::cout << "No hay reproduccion en curso." << std::endl;
-                    i--;
-                    incrementarIteraciones(2);
+                modoRepetir = !modoRepetir;
+                std::cout << "Modo repetir " << (modoRepetir ? "activado" : "desactivado") << std::endl;
+                if (modoRepetir && esCancionNueva) {
+                    cancionesReproducidas--;
                 }
+                incrementarIteraciones(2);
             } else {
                 std::cout << "Opcion no disponible para usuarios estandar." << std::endl;
-                i--;
                 incrementarIteraciones(2);
             }
             break;
@@ -360,16 +368,36 @@ void Reproductor::reproducirAleatorio() {
 
             cancionActual->incrementarReproducciones();
             contadorCancionesReproducidas++;
+            cancionesReproducidas++;
             cancionReproducida = true;
+
+            if (usuarioActual->esPremium() && esCancionNueva) {
+                agregarAlHistorial(cancionActual);
+            }
+
+            std::cout << "Progreso: " << cancionesReproducidas << "/" << LIMITE_CANCIONES_PRUEBA << " canciones" << std::endl;
             incrementarIteraciones(5);
             break;
         }
 
-        if (modoRepetir && reproduciendo && cancionReproducida) {
-            i--;
+        if (modoRepetir && reproduciendo && cancionReproducida && esCancionNueva) {
+            cancionesReproducidas--;
             std::cout << "Modo repetir activado - repitiendo cancion..." << std::endl;
+            std::cout << "Progreso: " << cancionesReproducidas << "/" << LIMITE_CANCIONES_PRUEBA << " canciones" << std::endl;
             incrementarIteraciones(2);
         }
+
+        if (!usuarioActual->esPremium() && contadorCancionesReproducidas > 0 &&
+            contadorCancionesReproducidas % 2 == 0 && esCancionNueva && cancionReproducida) {
+        }
+
+        if (opcion == 4 && !cancionReproducida) {
+        } else if (cancionReproducida) {
+            esCancionNueva = true;
+        } else {
+            esCancionNueva = true;
+        }
+
         incrementarIteraciones();
     }
 
@@ -396,9 +424,7 @@ void Reproductor::siguienteCancion() {
         incrementarIteraciones(2);
 
         if (usuarioActual->esPremium()) {
-            historial[indiceHistorial % 4] = cancionActual;
-            indiceHistorial++;
-            incrementarIteraciones(2);
+            agregarAlHistorial(cancionActual);
         }
     }
 
@@ -413,26 +439,33 @@ void Reproductor::siguienteCancion() {
 void Reproductor::cancionAnterior() {
     resetIteraciones();
 
-    if (!reproduciendo || !usuarioActual->esPremium()) {
+    if (!reproduciendo) {
+        std::cout << "No hay reproduccion en curso." << std::endl;
         incrementarIteraciones();
         return;
     }
 
-    if (indiceHistorial > 0) {
-        indiceHistorial--;
-        int historialIndex = (indiceHistorial - 1) % 4;
-        incrementarIteraciones(2);
+    if (!usuarioActual->esPremium()) {
+        std::cout << "Esta funcion solo esta disponible para usuarios premium." << std::endl;
+        incrementarIteraciones();
+        return;
+    }
 
-        if (historial[historialIndex] != nullptr) {
-            cancionActual = historial[historialIndex];
+    if (cantidadHistorial > 1 && indiceUltima > 0) {
+        Cancion* cancionAnterior = obtenerCancionAnterior();
+        if (cancionAnterior != nullptr) {
+            cancionActual = cancionAnterior;
+            retrocederEnHistorial();
+            std::cout << ">>> Retrocediendo a cancion anterior: " << cancionActual->getNombre() << std::endl;
             cancionActual->incrementarReproducciones();
-            mostrarInterfazReproduccion();
-            incrementarIteraciones(getIteraciones() + 2);
+        } else {
+            std::cout << "No hay canciones anteriores disponibles." << std::endl;
         }
     } else {
-        std::cout << "No hay canciones anteriores en el historial." << std::endl;
-        incrementarIteraciones();
+        std::cout << "No hay canciones anteriores disponibles." << std::endl;
     }
+
+    incrementarIteraciones(10);
 }
 
 void Reproductor::detenerReproduccion() {
