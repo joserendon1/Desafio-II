@@ -306,7 +306,6 @@ void GestorCatalogo::cargarArtistas() {
 
     archivo.close();
     incrementarIteraciones(iteracionesLocales + 1);
-    //std::cout << "Artistas cargados: " << artistasCargados << std::endl;
 }
 
 void GestorCatalogo::cargarAlbumes() {
@@ -338,7 +337,7 @@ void GestorCatalogo::cargarAlbumes() {
         totalCampos++;
 
         if (totalCampos < 7) {
-            std::cout << "❌ ERROR linea " << lineNumber << ": Album necesita al menos 7 campos, tiene " << totalCampos << std::endl;
+            std::cout << "ERROR linea " << lineNumber << ": Album necesita al menos 7 campos, tiene " << totalCampos << std::endl;
             albumesConErrores++;
             continue;
         }
@@ -408,7 +407,6 @@ void GestorCatalogo::cargarAlbumes() {
 
     archivo.close();
     incrementarIteraciones(iteracionesLocales + 1);
-    //std::cout << "Albumes cargados: " << albumesCargados << std::endl;
 }
 
 void GestorCatalogo::cargarCanciones() {
@@ -495,7 +493,6 @@ void GestorCatalogo::cargarCanciones() {
 
     archivo.close();
     incrementarIteraciones(iteracionesLocales + 1);
-    //std::cout << "Canciones cargadas: " << cancionesCargadas << std::endl;
 }
 
 void GestorCatalogo::guardarCanciones() const {

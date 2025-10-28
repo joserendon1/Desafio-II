@@ -9,7 +9,8 @@
 
 class Reproductor {
 private:
-    static const int TAMANO_HISTORIAL = 5;
+    static const int TAMANO_HISTORIAL = 6;
+
     Cancion* historial[TAMANO_HISTORIAL];
     int cantidadHistorial;
     int indiceUltima;
@@ -26,9 +27,9 @@ private:
     bool modoRepetir;
 
     int contadorCancionesReproducidas;
+    bool reproduccionListaFavoritos;
 
     std::mt19937 generadorAleatorio;
-
     mutable unsigned long iteraciones;
 
     void mostrarInterfazReproduccion();
@@ -47,6 +48,7 @@ public:
                          Usuario* usuario);
 
     void reproducirAleatorio();
+    void reproducirListaFavoritos(Cancion** cancionesLista, int totalCancionesLista, bool ordenAleatorio); // Nuevo método
     void siguienteCancion();
     void cancionAnterior();
     void detenerReproduccion();

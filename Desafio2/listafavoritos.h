@@ -16,9 +16,8 @@ private:
     int totalCanciones;
     Usuario* usuario;
     ListaFavoritos* listaSeguida;
-    mutable unsigned long iteraciones;
 
-    int getTotalCancionesSeguidas() const;
+    mutable unsigned long iteraciones;
 
 public:
     ListaFavoritos(Usuario* usuario);
@@ -30,6 +29,7 @@ public:
 
     Cancion** getCancionesConSeguidas(bool ordenAleatorio = false) const;
     int getTotalCancionesVisibles() const;
+    int getTotalCancionesSeguidas() const;
 
     void seguirLista(ListaFavoritos* otraLista);
     void dejarDeSeguirLista();

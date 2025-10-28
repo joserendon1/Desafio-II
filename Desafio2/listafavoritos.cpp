@@ -21,7 +21,7 @@ ListaFavoritos::~ListaFavoritos() {
 }
 
 bool ListaFavoritos::agregarCancion(Cancion* cancion) {
-    resetIteraciones();
+    //resetIteraciones();
 
     if (cancion == nullptr) {
         incrementarIteraciones();
@@ -65,7 +65,7 @@ bool ListaFavoritos::agregarCancion(Cancion* cancion) {
 }
 
 bool ListaFavoritos::eliminarCancion(int idCancion) {
-    resetIteraciones();
+    //resetIteraciones();
 
     ContenedorCancionFavorita* actual = inicio;
     ContenedorCancionFavorita* anterior = nullptr;
@@ -114,7 +114,7 @@ bool ListaFavoritos::contieneCancion(int idCancion) const {
 }
 
 Cancion** ListaFavoritos::getCancionesArray() const {
-    resetIteraciones();
+    //resetIteraciones();
 
     if (totalCanciones == 0) {
         incrementarIteraciones();
@@ -132,12 +132,12 @@ Cancion** ListaFavoritos::getCancionesArray() const {
         actual = actual->siguiente;
     }
 
-    incrementarIteraciones(iteracionesLocales + 1); // +1 por la creación del array
+    incrementarIteraciones(iteracionesLocales + 1);
     return array;
 }
 
 int ListaFavoritos::getTotalCancionesSeguidas() const {
-    resetIteraciones();
+    //resetIteraciones();
     if (listaSeguida != nullptr) {
         incrementarIteraciones();
         return listaSeguida->getTotalCanciones();
@@ -147,14 +147,14 @@ int ListaFavoritos::getTotalCancionesSeguidas() const {
 }
 
 int ListaFavoritos::getTotalCancionesVisibles() const {
-    resetIteraciones();
+    //resetIteraciones();
     int total = getTotalCanciones() + getTotalCancionesSeguidas();
     incrementarIteraciones();
     return total;
 }
 
 Cancion** ListaFavoritos::getCancionesConSeguidas(bool ordenAleatorio) const {
-    resetIteraciones();
+    //resetIteraciones();
 
     int totalVisibles = getTotalCancionesVisibles();
     if (totalVisibles == 0) {
@@ -204,10 +204,10 @@ Cancion** ListaFavoritos::getCancionesConSeguidas(bool ordenAleatorio) const {
 }
 
 void ListaFavoritos::seguirLista(ListaFavoritos* otraLista) {
-    resetIteraciones();
+    //resetIteraciones();
 
     if (listaSeguida != nullptr) {
-        std::cout << "Ya estás siguiendo una lista. Deja de seguir primero." << std::endl;
+        std::cout << "Ya estas siguiendo una lista. Deja de seguir primero." << std::endl;
         incrementarIteraciones();
         return;
     }
@@ -230,10 +230,10 @@ void ListaFavoritos::seguirLista(ListaFavoritos* otraLista) {
 }
 
 void ListaFavoritos::dejarDeSeguirLista() {
-    resetIteraciones();
+   // resetIteraciones();
 
     if (listaSeguida == nullptr) {
-        std::cout << "No estás siguiendo ninguna lista." << std::endl;
+        std::cout << "No estas siguiendo ninguna lista." << std::endl;
         incrementarIteraciones();
         return;
     }
@@ -244,7 +244,7 @@ void ListaFavoritos::dejarDeSeguirLista() {
 }
 
 void ListaFavoritos::mostrarLista() const {
-    resetIteraciones();
+    //resetIteraciones();
 
     int totalVisibles = getTotalCancionesVisibles();
     int iteracionesLocales = 0;

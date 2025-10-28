@@ -9,6 +9,7 @@ SOURCES += \
         gestorusuarios.cpp \
         listafavoritos.cpp \
         main.cpp \
+        menus.cpp \
         reproductor.cpp \
         sistemaudeatunes.cpp \
         usuario.cpp
@@ -21,6 +22,7 @@ HEADERS += \
     gestorcatalogo.h \
     gestorusuarios.h \
     listafavoritos.h \
+    menus.h \
     reproductor.h \
     sistemaudeatunes.h \
     usuario.h

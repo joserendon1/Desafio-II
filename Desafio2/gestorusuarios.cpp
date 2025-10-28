@@ -29,7 +29,7 @@ void GestorUsuarios::limpiarUsuarios() {
 }
 
 bool GestorUsuarios::agregarUsuario(Usuario* usuario) {
-    resetIteraciones();
+    //resetIteraciones();
 
     if (usuario == nullptr) {
         incrementarIteraciones();
@@ -60,7 +60,7 @@ bool GestorUsuarios::agregarUsuario(Usuario* usuario) {
 }
 
 Usuario* GestorUsuarios::buscarUsuario(const std::string& nickname) const {
-    resetIteraciones();
+    //resetIteraciones();
 
     ContenedorUsuario* actual = inicio;
     int iteracionesLocales = 0;
@@ -79,7 +79,7 @@ Usuario* GestorUsuarios::buscarUsuario(const std::string& nickname) const {
 }
 
 Usuario** GestorUsuarios::getUsuariosArray() const {
-    resetIteraciones();
+    //resetIteraciones();
 
     if (totalUsuarios == 0) {
         incrementarIteraciones();
@@ -102,7 +102,7 @@ Usuario** GestorUsuarios::getUsuariosArray() const {
 }
 
 void GestorUsuarios::cargarUsuarios() {
-    resetIteraciones();
+    //resetIteraciones();
 
     std::ifstream archivo("datos/usuarios.txt");
     if (!archivo.is_open()) {
@@ -142,7 +142,6 @@ void GestorUsuarios::cargarUsuarios() {
 
     archivo.close();
     incrementarIteraciones(iteracionesLocales + 1);
-    //std::cout << "Usuarios cargados: " << usuariosCargados << std::endl;
 }
 
 unsigned long GestorUsuarios::calcularMemoriaUsuarios() const {

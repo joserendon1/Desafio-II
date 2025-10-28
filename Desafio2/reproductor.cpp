@@ -9,7 +9,9 @@
 #include <limits>
 
 Reproductor::Reproductor(Cancion** canciones, int totalCanc, MensajePublicitario** mensajes, int totalMsg, Usuario* usuario)
-    : todasLasCanciones(canciones),
+    : cantidadHistorial(0),
+    indiceUltima(-1),
+    todasLasCanciones(canciones),
     todosLosMensajes(mensajes),
     totalCanciones(totalCanc),
     totalMensajes(totalMsg),
@@ -18,9 +20,8 @@ Reproductor::Reproductor(Cancion** canciones, int totalCanc, MensajePublicitario
     indiceActual(-1),
     reproduciendo(false),
     modoRepetir(false),
-    cantidadHistorial(0),
-    indiceUltima(-1),
     contadorCancionesReproducidas(0),
+    reproduccionListaFavoritos(false),
     iteraciones(0)
 {
     for (int i = 0; i < TAMANO_HISTORIAL; i++) {
@@ -33,7 +34,7 @@ Reproductor::Reproductor(Cancion** canciones, int totalCanc, MensajePublicitario
 }
 
 int Reproductor::generarNumeroAleatorio(int maximo) {
-    resetIteraciones();
+    //resetIteraciones();
 
     if (maximo <= 0) {
         incrementarIteraciones();
@@ -48,7 +49,7 @@ int Reproductor::generarNumeroAleatorio(int maximo) {
 }
 
 void Reproductor::mostrarInterfazReproduccion() {
-    resetIteraciones();
+    //resetIteraciones();
 
     if (cancionActual == nullptr) {
         incrementarIteraciones();
@@ -80,7 +81,7 @@ void Reproductor::mostrarInterfazReproduccion() {
 }
 
 MensajePublicitario* Reproductor::obtenerMensajeAleatorio() {
-    resetIteraciones();
+    //resetIteraciones();
 
     if (totalMensajes == 0) {
         incrementarIteraciones();
@@ -139,6 +140,7 @@ void Reproductor::agregarAlHistorial(Cancion* cancion) {
     if (cantidadHistorial > 0 && historial[indiceUltima] == cancion) {
         return;
     }
+
     if (cantidadHistorial == TAMANO_HISTORIAL) {
         for (int i = 0; i < TAMANO_HISTORIAL - 1; i++) {
             historial[i] = historial[i + 1];
@@ -151,21 +153,9 @@ void Reproductor::agregarAlHistorial(Cancion* cancion) {
         cantidadHistorial++;
     }
 
-    std::cout << "Agregada al historial: '" << cancion->getNombre()
-              << "' en posicion " << indiceUltima
-              << " (total en historial: " << cantidadHistorial << ")" << std::endl;
-
-    std::cout << "Estado historial: ";
-    for (int i = 0; i < TAMANO_HISTORIAL; i++) {
-        if (i < cantidadHistorial) {
-            std::cout << "[" << i << "]:" << historial[i]->getNombre().substr(0, 8);
-            if (i == indiceUltima) std::cout << "(ULTIMA)";
-            std::cout << " ";
-        } else {
-            std::cout << "[" << i << "]:VACIO ";
-        }
-    }
-    std::cout << std::endl;
+    std::cout << "Agregada al historial: " << cancion->getNombre()
+              << " en posicion " << indiceUltima
+              << " (total en historial: " << cantidadHistorial << "/" << TAMANO_HISTORIAL << ")" << std::endl;
 }
 
 Cancion* Reproductor::obtenerCancionAnterior() {
@@ -186,7 +176,7 @@ bool Reproductor::retrocederEnHistorial() {
 }
 
 void Reproductor::actualizarDatos(Cancion** canciones, int totalCanc, MensajePublicitario** mensajes, int totalMsg, Usuario* usuario) {
-    resetIteraciones();
+    //resetIteraciones();
 
     this->todasLasCanciones = canciones;
     this->totalCanciones = totalCanc;
@@ -210,7 +200,7 @@ void Reproductor::actualizarDatos(Cancion** canciones, int totalCanc, MensajePub
 }
 
 void Reproductor::reproducirAleatorio() {
-    resetIteraciones();
+    //resetIteraciones();
 
     if (totalCanciones == 0) {
         std::cout << "No hay canciones disponibles para reproducir." << std::endl;
@@ -389,6 +379,18 @@ void Reproductor::reproducirAleatorio() {
 
         if (!usuarioActual->esPremium() && contadorCancionesReproducidas > 0 &&
             contadorCancionesReproducidas % 2 == 0 && esCancionNueva && cancionReproducida) {
+
+            MensajePublicitario* mensaje = obtenerMensajeAleatorio();
+            if (mensaje != nullptr) {
+                std::cout << "\n--- PUBLICIDAD ---" << std::endl;
+                std::cout << mensaje->texto << std::endl;
+                std::cout << "Categoría: " << mensaje->categoria << std::endl;
+                std::cout << "------------------" << std::endl;
+
+                // Pausa breve para que el usuario pueda leer la publicidad
+                std::cout << "Presione Enter para continuar...";
+                std::cin.get();
+            }
         }
 
         if (opcion == 4 && !cancionReproducida) {
@@ -410,8 +412,222 @@ void Reproductor::reproducirAleatorio() {
     incrementarIteraciones();
 }
 
+void Reproductor::reproducirListaFavoritos(Cancion** cancionesLista, int totalCancionesLista, bool ordenAleatorio) {
+    //resetIteraciones();
+
+    if (totalCancionesLista == 0) {
+        std::cout << "La lista de favoritos esta vacia." << std::endl;
+        incrementarIteraciones();
+        return;
+    }
+
+    reproduccionListaFavoritos = true;
+    this->todasLasCanciones = cancionesLista;
+    this->totalCanciones = totalCancionesLista;
+
+    reproduciendo = true;
+    contadorCancionesReproducidas = 0;
+    const int LIMITE_CANCIONES_PRUEBA = 5;
+
+    std::cout << "\n==========================================" << std::endl;
+    std::cout << "    REPRODUCIENDO LISTA DE FAVORITOS" << std::endl;
+    std::cout << "==========================================" << std::endl;
+    std::cout << "Modo: " << (ordenAleatorio ? "Aleatorio" : "Orden original") << std::endl;
+    std::cout << "Total canciones: " << totalCancionesLista << std::endl;
+    std::cout << "Historial disponible: " << TAMANO_HISTORIAL << " canciones" << std::endl;
+    std::cout << "==========================================" << std::endl;
+
+    int cancionesReproducidas = 0;
+    bool esCancionNueva = true;
+    indiceActual = -1;
+
+    while (reproduciendo && cancionesReproducidas < LIMITE_CANCIONES_PRUEBA) {
+        incrementarIteraciones();
+
+        if (esCancionNueva) {
+            if (ordenAleatorio) {
+                indiceActual = generarNumeroAleatorio(totalCancionesLista);
+                incrementarIteraciones(getIteraciones());
+            } else {
+                indiceActual = (indiceActual + 1) % totalCancionesLista;
+                incrementarIteraciones();
+            }
+
+            if (indiceActual < 0 || indiceActual >= totalCancionesLista) {
+                std::cout << "ERROR: Indice de canción invalido: " << indiceActual << std::endl;
+                reproduciendo = false;
+                incrementarIteraciones(2);
+                break;
+            }
+
+            cancionActual = todasLasCanciones[indiceActual];
+            incrementarIteraciones();
+
+            if (cancionActual == nullptr) {
+                std::cout << "ERROR: Cancion actual es nula en indice " << indiceActual << std::endl;
+                reproduciendo = false;
+                incrementarIteraciones(2);
+                break;
+            }
+
+            if (usuarioActual->esPremium()) {
+                agregarAlHistorial(cancionActual);
+            }
+        }
+
+        mostrarInterfazReproduccion();
+        incrementarIteraciones(getIteraciones());
+
+        int opcion;
+        std::cin >> opcion;
+        incrementarIteraciones();
+
+        std::cin.clear();
+        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+
+        bool cancionReproducida = false;
+
+        switch (opcion) {
+        case 1:
+        {
+            std::cout << "Reproduciendo: " << cancionActual->getNombre() << std::endl;
+            auto start = std::chrono::steady_clock::now();
+            while (std::chrono::steady_clock::now() - start < std::chrono::seconds(3)) {
+            }
+            std::cout << "Cancion finalizada." << std::endl;
+
+            cancionActual->incrementarReproducciones();
+            contadorCancionesReproducidas++;
+            cancionReproducida = true;
+            cancionesReproducidas++;
+
+            std::cout << "Progreso: " << cancionesReproducidas << "/" << LIMITE_CANCIONES_PRUEBA << " canciones" << std::endl;
+
+            if (usuarioActual->esPremium() && esCancionNueva) {
+                agregarAlHistorial(cancionActual);
+            }
+            incrementarIteraciones(5);
+        }
+        break;
+
+        case 2:
+            reproduciendo = false;
+            std::cout << "Reproduccion detenida." << std::endl;
+            incrementarIteraciones(2);
+            break;
+
+        case 3:
+            if (usuarioActual->esPremium()) {
+                std::cout << "Saltando a siguiente cancion..." << std::endl;
+                esCancionNueva = true;
+                incrementarIteraciones();
+            } else {
+                std::cout << "Opcion no disponible para usuarios estandar." << std::endl;
+                incrementarIteraciones(2);
+            }
+            break;
+
+        case 4:
+            if (usuarioActual->esPremium()) {
+                if (cantidadHistorial > 1 && indiceUltima > 0) {
+                    Cancion* cancionAnterior = obtenerCancionAnterior();
+                    if (cancionAnterior != nullptr) {
+                        cancionActual = cancionAnterior;
+                        retrocederEnHistorial();
+
+                        std::cout << ">>> Retrocediendo a cancion anterior: " << cancionActual->getNombre() << std::endl;
+
+                        for (int i = 0; i < totalCancionesLista; i++) {
+                            if (todasLasCanciones[i] == cancionActual) {
+                                indiceActual = i;
+                                break;
+                            }
+                        }
+
+                        esCancionNueva = false;
+                        cancionesReproducidas--;
+
+                    } else {
+                        std::cout << "No hay canciones anteriores disponibles." << std::endl;
+                        esCancionNueva = true;
+                    }
+                } else {
+                    std::cout << "No hay canciones anteriores disponibles." << std::endl;
+                    esCancionNueva = true;
+                }
+                incrementarIteraciones(5);
+            } else {
+                std::cout << "Opcion no disponible para usuarios estandar." << std::endl;
+                incrementarIteraciones(2);
+            }
+            break;
+
+        case 5:
+            if (usuarioActual->esPremium()) {
+                modoRepetir = !modoRepetir;
+                std::cout << "Modo repetir " << (modoRepetir ? "activado" : "desactivado") << std::endl;
+                if (modoRepetir && esCancionNueva) {
+                    cancionesReproducidas--;
+                }
+                incrementarIteraciones(2);
+            } else {
+                std::cout << "Opcion no disponible para usuarios estándar." << std::endl;
+                incrementarIteraciones(2);
+            }
+            break;
+
+        default:
+            std::cout << "Opcion no valida. Reproduciendo automaticamente..." << std::endl;
+            {
+                auto start = std::chrono::steady_clock::now();
+                while (std::chrono::steady_clock::now() - start < std::chrono::seconds(3)) {
+                }
+            }
+            std::cout << "Cancion finalizada." << std::endl;
+
+            cancionActual->incrementarReproducciones();
+            contadorCancionesReproducidas++;
+            cancionesReproducidas++;
+            cancionReproducida = true;
+
+            if (usuarioActual->esPremium() && esCancionNueva) {
+                agregarAlHistorial(cancionActual);
+            }
+
+            std::cout << "Progreso: " << cancionesReproducidas << "/" << LIMITE_CANCIONES_PRUEBA << " canciones" << std::endl;
+            incrementarIteraciones(5);
+            break;
+        }
+
+        if (modoRepetir && reproduciendo && cancionReproducida && esCancionNueva) {
+            cancionesReproducidas--;
+            std::cout << "Modo repetir activado - repitiendo canción..." << std::endl;
+            std::cout << "Progreso: " << cancionesReproducidas << "/" << LIMITE_CANCIONES_PRUEBA << " canciones" << std::endl;
+            incrementarIteraciones(2);
+        }
+
+        if (opcion == 4 && !cancionReproducida) {
+        } else if (cancionReproducida) {
+            esCancionNueva = true;
+        } else {
+            esCancionNueva = true;
+        }
+
+        incrementarIteraciones();
+    }
+
+    if (reproduciendo) {
+        std::cout << "Reproduccion finalizada (limite de " << LIMITE_CANCIONES_PRUEBA << " canciones alcanzado)." << std::endl;
+        incrementarIteraciones();
+    }
+
+    reproduciendo = false;
+    reproduccionListaFavoritos = false; // Resetear modo
+    incrementarIteraciones();
+}
+
 void Reproductor::siguienteCancion() {
-    resetIteraciones();
+    //resetIteraciones();
 
     if (!reproduciendo || totalCanciones == 0) {
         incrementarIteraciones();
@@ -437,7 +653,7 @@ void Reproductor::siguienteCancion() {
 }
 
 void Reproductor::cancionAnterior() {
-    resetIteraciones();
+    //resetIteraciones();
 
     if (!reproduciendo) {
         std::cout << "No hay reproduccion en curso." << std::endl;
@@ -469,7 +685,7 @@ void Reproductor::cancionAnterior() {
 }
 
 void Reproductor::detenerReproduccion() {
-    resetIteraciones();
+    //resetIteraciones();
 
     reproduciendo = false;
     std::cout << "Reproduccion detenida." << std::endl;
@@ -477,7 +693,7 @@ void Reproductor::detenerReproduccion() {
 }
 
 void Reproductor::toggleRepetir() {
-    resetIteraciones();
+    //resetIteraciones();
 
     if (!usuarioActual->esPremium()) {
         std::cout << "Esta funcion solo esta disponible para usuarios premium." << std::endl;

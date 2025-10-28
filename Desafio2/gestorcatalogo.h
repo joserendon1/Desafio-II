@@ -59,7 +59,7 @@ public:
     int getTotalArtistas() const { return totalArtistas; }
     int getTotalAlbumes() const { return totalAlbumes; }
     int getTotalCanciones() const { return totalCanciones; }
-    Cancion** getCancionesArray() const;  // ✅ SÍ SE USA
+    Cancion** getCancionesArray() const;
 
     unsigned long getIteraciones() const { return iteraciones; }
     void incrementarIteraciones(int cantidad = 1) const { iteraciones += cantidad; }
