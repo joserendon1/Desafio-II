@@ -386,8 +386,6 @@ void Reproductor::reproducirAleatorio() {
                 std::cout << mensaje->texto << std::endl;
                 std::cout << "Categoría: " << mensaje->categoria << std::endl;
                 std::cout << "------------------" << std::endl;
-
-                // Pausa breve para que el usuario pueda leer la publicidad
                 std::cout << "Presione Enter para continuar...";
                 std::cin.get();
             }
@@ -622,7 +620,7 @@ void Reproductor::reproducirListaFavoritos(Cancion** cancionesLista, int totalCa
     }
 
     reproduciendo = false;
-    reproduccionListaFavoritos = false; // Resetear modo
+    reproduccionListaFavoritos = false;
     incrementarIteraciones();
 }
 
